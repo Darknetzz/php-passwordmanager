@@ -1,2 +1,2 @@
 # php-passwordmanager
- A simple password safe
+ A simple (and probably insecure) password safe
