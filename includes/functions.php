@@ -36,7 +36,7 @@ function passGen($l, $t) {
         $str = "";
     
         for ($i = 0; $i < $l; $i++) {
-            $r = mt_rand(0, $alen);
+            $r = mt_rand(0, $alen-1);
             str_split($alphabet);
             $str .= $alphabet[$r];
         }

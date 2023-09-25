@@ -1,4 +1,5 @@
 <?php
+session_start();
 error_reporting(E_ALL);
 
 define("CONFIG_FILE", "includes/config.php");
@@ -8,7 +9,9 @@ define("MASTER_PASSWORD_MINLEN", 8);
 
 require_once("includes/bootstrap.php");
 require_once(FUNCTIONS_FILE);
+?>
 
+<?php
 try {
   /* ────────────────────────────────────────────────────────────────────────── */
   /*            Verify that config exists, if not, require setup.php            */
@@ -24,7 +27,6 @@ try {
   /* ────────────────────────────────────────────────────────────────────────── */
   /*                          All good, config exists!                          */
   /* ────────────────────────────────────────────────────────────────────────── */
-  session_start();
   require_once(CONFIG_FILE);
   
   $title = "PHP Password Manager";
@@ -65,7 +67,9 @@ $pwInput = "Please enter master password:
 
 # User is attempting to sign in, but password is incorrect
 if (isset($_POST['mpassword'])) {
-  if (hash("sha512", $_POST['mpassword']) <> MASTER_PASSWORD) {
+  $hpw = hash("sha512", $_POST['mpassword']);
+  if ($hpw <> MASTER_PASSWORD) {
+    echo alert("Invalid password", "danger");
     die($pwInput);
   }
 }
@@ -178,7 +182,8 @@ $accounts = mysqli_query($sqlcon, $accounts);
         <div class="input-group-prepend">
           <span class="input-group-text" id="basic-addon1">Password</span>
         </div>
-          <input type="password" class="form-control" name="password" placeholder="Password" value="<?php echo passGen(30, "luds"); ?>">
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="">
+          <a href="javascript:void(0);" class="genPass btn btn-primary" data-output="#password">Generate</a>
         </div>
         <div class="input-group mb-3">
         <div class="input-group-prepend">
@@ -262,6 +267,7 @@ while ($account = $accounts->fetch_assoc()) {
             <span class="input-group-text">Password</span>
           </div>
             <input type="password" name="password" class="form-control" placeholder="Password" value="'.$decryptedPass.'">
+
           </div>
           <div class="input-group mb-3">
           <div class="input-group-prepend">
@@ -383,30 +389,3 @@ echo "</table>";
     </div>
   </div>
 </div>
-
-<script>
-function copyTC(elementID) {
-  let element = document.getElementById(elementID); //select the element
-  let elementText = element.textContent; //get the text content from the element
-  copyText(elementText); //use the copyText function below
-}
-
-//If you only want to put some Text in the Clipboard just use this function
-// and pass the string to copied as the argument.
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-  $('#liveToast').toast('show');
-}
-
-function reveal(id) {
-  o = "#"+id;
-  isVisible = $(o).is(":visible");
-  $(o+"-h").toggle();
-  $(o).toggle();
-  if (!isVisible) {
-    $(o+"-eye").css({filter : "invert(100%)"});
-  } else {
-    $(o+"-eye").css({filter : "invert(0%)"});
-  }
-}
-</script>

@@ -1,3 +1,4 @@
+<div class="container" style="margin-top:10px;">
 <?php
 $status = 0;
 $error  = [];
@@ -19,10 +20,9 @@ if (file_exists(CONFIG_FILE) && !empty(file_get_contents(CONFIG_FILE))) {
 $category = function($name) {
   return '<tr><th colspan=100%"><h4>'.$name.'</h4></th></tr>';
 };
-$option = function($name, $description, $type, $default = "") {
+$option = function($name, $description, $type, $default = "", $required = "") {
   return '<tr><td>'.$description.'</td> <td>
-  <input type="hidden" name="'.$name.'" value="'.$default.'">
-  <input type="'.$type.'" name="'.$name.'" placeholder="'.$default.'" class="form-control"></td></tr>';
+  <input type="'.$type.'" name="'.$name.'" placeholder="'.$default.'" class="form-control" '.$required.'></td></tr>';
 };
 
 $values = [
@@ -30,12 +30,12 @@ $values = [
   "MySQL" => [
     ['MYSQL_HOST'    , "127.0.0.1"          , "MYSQL Server"  , "text"    ], 
     ['MYSQL_USER'    , "root"               , "MYSQL Username", "text"    ], 
-    ['MYSQL_PASSWORD', ""                   , "MYSQL Password", "password"    ], 
+    ['MYSQL_PASSWORD', ""                   , "MYSQL Password", "password"], 
     ['MYSQL_DB'      , "php_passwordmanager", "MYSQL Database", "text"    ], 
   ],
   "General" => [
     ['master_password', ""                    , "Vault Master Password", "password"], 
-    ['title'          , "PHP Password Manager", "Page Title"                 , "text"], 
+    ['title'          , "PHP Password Manager", "Page Title"           , "text"], 
   ],
 ];
 
@@ -51,7 +51,11 @@ foreach ($values as $c => $value) {
     $default     = $thisval[1];
     $description = $thisval[2];
     $type        = $thisval[3];
-    $options .= $option($name, $description, $type, $default);
+    $required    = false;
+    if ($name == "master_password") {
+      $required = "required";
+    }
+    $options .= $option($name, $description, $type, $default, $required);
   }  
 }
 
@@ -69,7 +73,7 @@ $configCard = '
 '.$options.'
 </table>
 <button class="btn btn-success" name="startsetup">Save</button>
-<button class="btn btn-secondary" id="genPass">Generate password</button>
+<button class="btn btn-secondary" class="genPass" data-output="#genOutput">Generate password</button>
 </form>
 <span id="genOutput"></span>
 </div>
@@ -253,7 +257,7 @@ while ($status == 0) {
 /*                               Master password                              */
 /* ────────────────────────────────────────────────────────────────────────── */
 # Your master password in SHA512 format
-define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD']).'");
+define("MASTER_PASSWORD", "'.hash('sha512', $setup['master_password']).'");
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
@@ -312,17 +316,4 @@ echo "<hr>";
 echo $configCard;
 
 ?>
-
-<script>
-$("#genPass").on("click", function(e) {
-  e.preventDefault();
-  var len = 15;
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var gen = '';
-  for (let i = 0; i < len; i++) {
-    gen += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-
-  $("#genOutput").html("<code>"+gen+"</code>");
-});
-</script>
+</div>
