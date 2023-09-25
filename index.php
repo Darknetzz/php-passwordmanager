@@ -6,22 +6,27 @@
 
 <!-- CSS only -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-<link rel="icon" href="lock.png" type="image/x-icon">
+<link rel="icon" href="img/lock.png" type="image/x-icon">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>PHP Password Manager</title>
-
-<div class="container-fluid">
+<?php 
+  if (!defined("BACKGROUND_COLOR")) {
+    define("BACKGROUND_COLOR", "#111");
+  }
+  echo "<body style='background-color:".BACKGROUND_COLOR.";'>";
+?>
+<div class="container-fluid" style="padding-top:10px;">
 <?php
 session_start();
-
+include_once("setup.php");
 include_once("functions.php");
 include_once("config.php");
 
 if (isset($_POST['mpassword'])) {
     $_GET['lock'] = null;
-    $_SESSION['password'] = $masterPassword;
+    $_SESSION['password'] = $_POST['mpassword'];
 }
 
 if (isset($_GET['lock'])) {
@@ -29,22 +34,22 @@ if (isset($_GET['lock'])) {
     header("Location: index.php");
 }
 
+$pwInput = "Please enter master password: 
+<form action='' method='POST' autocomplete='off'>
+<input type='password' name='mpassword' class='form-control' autocomplete='off' spellcheck='false' autofocus>
+</form>";
+
+
 # User is attempting to sign in, but password is incorrect
 if (isset($_POST['mpassword'])) {
-if (hash("sha512", $_POST['mpassword']) <> $masterPassword) {
-  die("Please enter master password: 
-  <form action='' method='POST' autocomplete='off'>
-  <input type='password' name='mpassword' class='form-control' autocomplete='off' spellcheck='false' autofocus>
-  </form>");
-}
+  if (hash("sha512", $_POST['mpassword']) <> MASTER_PASSWORD) {
+    die($pwInput);
+  }
 }
 
 # User is not signed in
 if (!isset($_SESSION['password'])) {
-    die("Please enter master password: 
-    <form action='' method='POST' autocomplete='off'>
-    <input type='password' name='mpassword' class='form-control' autocomplete='off' spellcheck='false' autofocus>
-    </form>");
+    die($pwInput);
 }
 
 if (isset($_POST['del'])) {
@@ -63,7 +68,7 @@ if (isset($_POST['edit'])) {
   $name = mysqli_real_escape_string($sqlcon,$_POST['name']);
   $username = mysqli_real_escape_string($sqlcon,$_POST['username']);
   $salt = passGen(32, 'lud');
-  $password = encrypt($_POST['password'], $salt.$masterPassword);
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD);
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -87,7 +92,7 @@ if (isset($_POST['add'])) {
   $name = mysqli_real_escape_string($sqlcon, $_POST['name']);
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
   $salt = passGen(32, 'lud');
-  $password = encrypt($_POST['password'], $salt.$masterPassword);
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD);
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -116,7 +121,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
 <form action="" method="GET">
 <div class="input-group">
 <div class="input-group-prepend">
-  <span class="input-group-text" id="basic-addon1"><img src="search.png"></span>
+  <span class="input-group-text" id="basic-addon1"><img src="img/search.png"></span>
 </div>
   <input type="text" name="s" class="form-control" placeholder="Search" autofocus>
 </div>
@@ -184,6 +189,10 @@ $accounts = mysqli_query($sqlcon, $accounts);
 </div>
 
 <?php
+echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
+echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
+echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
+
 $iteration = 1;
 while ($account = $accounts->fetch_assoc()) {
   if ($account['2fa'] == 1) {
@@ -194,9 +203,9 @@ while ($account = $accounts->fetch_assoc()) {
   # EDIT ENTRY
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
-    $decryptedPass = decrypt($account['password'], $salt.$masterPassword);
+    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD);
   } else {
-    $decryptedPass = decrypt($account['password'], $masterPassword);
+    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD);
   }
   echo '
   <!-- Modal -->
@@ -287,9 +296,9 @@ while ($account = $accounts->fetch_assoc()) {
     </div>
   ';
         if ($iteration == 1) {
-          echo "<a href='index.php'><img src='clear.png' style='width:40px;'></a> ";
-          echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='plus.png' style='width:40px;'></a> ";
-          echo "<a href='?lock=1'><img src='lock.png' style='width:40px;'></a>";
+          // echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
+          // echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
+          // echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
 
           
           echo "<table class='table table-hover' style='table-layout:fixed;'>
@@ -301,12 +310,12 @@ while ($account = $accounts->fetch_assoc()) {
     echo "<td>";
     if ($i == 3) {
         # URL Field
-        echo "<img src='ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'><a href='$account[url]' target='_blank'>$account[url]</a></span>";
+        echo "<img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'><a href='$account[url]' target='_blank'>$account[url]</a></span>";
     } elseif ($i == 2) {
         # Password field
         echo "
-        <img src='ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'>
-        <img src='eye.png' id='$account[id]$i$id-eye' onClick='reveal(\"$account[id]$i$id\");' style='width:30px;'>
+        <img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'>
+        <img src='img/eye.png' id='$account[id]$i$id-eye' onClick='reveal(\"$account[id]$i$id\");' style='width:30px;'>
         <span id='$account[id]$i$id' style='display:none;font-size:11px;'>".$decryptedPass."</span>
         <span id='$account[id]$i$id-h' style='font-size:11px;'>****************</span>";
     } elseif ($i == 4) {
@@ -314,20 +323,20 @@ while ($account = $accounts->fetch_assoc()) {
         echo $account["description"];
     } elseif ($i == 0) {
         # Name field, no need for copy
-        echo "<a href='#' data-bs-toggle='modal' data-bs-target='#editEntryModal$account[id]'><img src='edit.png' style='width:30px;'></a>
-              <a href='#' data-bs-toggle='modal' data-bs-target='#delEntryModal$account[id]'><img src='trash.png' style='width:30px;'></a>
+        echo "<a href='#' data-bs-toggle='modal' data-bs-target='#editEntryModal$account[id]'><img src='img/edit.png' style='width:30px;'></a>
+              <a href='#' data-bs-toggle='modal' data-bs-target='#delEntryModal$account[id]'><img src='img/trash.png' style='width:30px;'></a>
               ".$account["name"];
     } elseif ($i == 5) {
         # 2FA Field
         $tfa = $account['2fa'];
         if ($tfa == 0) {
-          echo "<img src='x.png' style='width:30px;'>";
+          echo "<img src='img/x.png' style='width:30px;'>";
         } else {
-          echo "<img src='check.png' style='width:30px;'>";
+          echo "<img src='img/check.png' style='width:30px;'>";
         }
     } elseif ($i == 1) {
         # Not password field
-        echo "<img src='ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'>$account[username]</span>";
+        echo "<img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'>$account[username]</span>";
     }
     echo "</td>";
     }
@@ -341,7 +350,7 @@ echo "</table>";
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
   <div id="liveToast" class="toast bg-text-white bg-info hide" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
-      <img src="ctc.png" class="rounded me-2" alt="Copied" style="width:30px;">
+      <img src="img/ctc.png" class="rounded me-2" alt="Copied" style="width:30px;">
       <strong class="me-auto">Copied!</strong>
       <small>now</small>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>

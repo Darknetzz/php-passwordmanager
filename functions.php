@@ -27,7 +27,7 @@ function passGen($l, $t) {
             $alphabet .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         }
         if ($di !== false) {
-            $alphabet .= "123456789";
+            $alphabet .= "0123456789";
         }
         if ($sy !== false) {
             $alphabet .= "!#%-_.,=?";
@@ -41,7 +41,7 @@ function passGen($l, $t) {
             $str .= $alphabet[$r];
         }
         return $str;
-    } catch (\Throwable $th) {
+    } catch (Throwable $th) {
         return "Exception in passGen(): $th";
     }
 }

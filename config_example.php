@@ -1,14 +1,24 @@
 <?php
 # Change this file to match your SQL-connection and add a master password.
 
+/* ────────────────────────────────────────────────────────────────────────── */
+/*                               Master password                              */
+/* ────────────────────────────────────────────────────────────────────────── */
 # Your master password in SHA512 format (current password: CHANGEME)
-# Geneare a SHA512 version of your password here: https://roste.org/rand/#hash
-$masterPassword = "101289c2f34b5dea17245e030720cd2a7c6be2307147ff188b532170bc0f16a05b1cc694be6826e516e0496105b8b8a681d908dd6db2d5d71a5ff281c4967acc";
+define("MASTER_PASSWORD", "101289c2f34b5dea17245e030720cd2a7c6be2307147ff188b532170bc0f16a05b1cc694be6826e516e0496105b8b8a681d908dd6db2d5d71a5ff281c4967acc");
 
-# Remember to create the database and import php_passwordmanager.sql.
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "passwords";
-$sqlcon = mysqli_connect($host, $user, $pass, $db);
+/* ────────────────────────────────────────────────────────────────────────── */
+/*                         MySQL Connection Parameters                        */
+/* ────────────────────────────────────────────────────────────────────────── */
+define("MYSQL_HOST", "localhost");
+define("MYSQL_USER", "root");
+define("MYSQL_PASSWORD", "");
+define("MYSQL_DB", "php_passwordmanager");
+
+$sqlcon = mysqli_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/*                                    Other                                   */
+/* ────────────────────────────────────────────────────────────────────────── */
+define("BACKGROUND_COLOR", "#111");
 ?>

@@ -9,8 +9,6 @@ cd /var/www/html
 git clone https://github.com/Darknetzz/php-passwordmanager.git
 ````
 
-* Import `php_passwordmanager.sql` into your SQL server.
-
 * Choose a secure master password, and hash it with SHA512. Protip: [](https://roste.org/rand/#hash)
 
 * Paste the hashed password, and configure your database connection settings in `config_example.php` and rename the file to `config.php`
