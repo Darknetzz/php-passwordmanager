@@ -1,16 +1,44 @@
-<!-- JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<?php
+error_reporting(E_ALL);
 
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+define("CONFIG_FILE", "includes/config.php");
+define("SETUP_FILE", "includes/setup.php");
+define("FUNCTIONS_FILE", "includes/functions.php");
+define("MASTER_PASSWORD_MINLEN", 8);
 
-<!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-<link rel="icon" href="img/lock.png" type="image/x-icon">
+require_once("includes/bootstrap.php");
+require_once(FUNCTIONS_FILE);
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+try {
+  /* ────────────────────────────────────────────────────────────────────────── */
+  /*            Verify that config exists, if not, require setup.php            */
+  /* ────────────────────────────────────────────────────────────────────────── */
+  if (!file_exists(CONFIG_FILE)) {
+    die(require_once(SETUP_FILE));
+  }
+  
+  if (empty(file_get_contents(CONFIG_FILE))) {
+    die(require_once(SETUP_FILE));
+  }
+  
+  /* ────────────────────────────────────────────────────────────────────────── */
+  /*                          All good, config exists!                          */
+  /* ────────────────────────────────────────────────────────────────────────── */
+  session_start();
+  require_once(CONFIG_FILE);
+  
+  $title = "PHP Password Manager";
+  if (defined("SITE_TITLE")) {
+    $title = SITE_TITLE;
+  }
+  
+  echo "<title>$title</title>";
+} catch (Throwable $t) {
+    echo alert("Setup couldn't run: $t");
+}
 
-<title>PHP Password Manager</title>
+?>
+
 <?php 
   if (!defined("BACKGROUND_COLOR")) {
     define("BACKGROUND_COLOR", "#111");
@@ -19,11 +47,6 @@
 ?>
 <div class="container-fluid" style="padding-top:10px;">
 <?php
-session_start();
-include_once("setup.php");
-include_once("functions.php");
-include_once("config.php");
-
 if (isset($_POST['mpassword'])) {
     $_GET['lock'] = null;
     $_SESSION['password'] = $_POST['mpassword'];
