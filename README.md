@@ -2,7 +2,9 @@
  A simple (and probably insecure) password safe
 
 # Prerequisites
-- [ ] Apache/Nginx webserver running PHP > 7, MySQL
+- [x] Apache/Nginx webserver
+- [x] PHP > 7
+- [x] MySQL
 
 # Installation
 
