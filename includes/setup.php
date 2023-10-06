@@ -126,7 +126,7 @@ while ($status == 0) {
     if (empty($val)) {
       $setup[$var] = $_POST[$var.'_DEFAULT'];
     }
-    
+
   }
 
   
@@ -160,8 +160,6 @@ while ($status == 0) {
         mysqli_query($sqlcon, "CREATE DATABASE $dbName;"); # TODO: directly allowing a POST value in the query...
         setup_info("Database $dbName created!", "success");
     } catch (Throwable $t) {
-        setup_info("The database $dbName could not be created. $t", "danger");
-        die();
         $attempts = 0;
         $try      = 3;
         $created  = 0;
