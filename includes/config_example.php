@@ -4,8 +4,23 @@
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                               Master password                              */
 /* ────────────────────────────────────────────────────────────────────────── */
-# Your master password in SHA512 format (current password: CHANGEME)
-define("MASTER_PASSWORD", "101289c2f34b5dea17245e030720cd2a7c6be2307147ff188b532170bc0f16a05b1cc694be6826e516e0496105b8b8a681d908dd6db2d5d71a5ff281c4967acc");
+/*
+
+    How:
+        - Use a hashing tool online like https://roste.org/rand/#hash
+        - Insert the master password + salt into the SHA512 input field.
+
+    Example:
+        If salt is set to SALT, your password needs to be hashed like this: <YOUR_PASSWORD>123
+
+*/
+
+# Optional appended salt
+define("SALT", "CHANGEME");
+
+# Your master password in SHA512 format
+# This password is set to be CHANGEME, with the above salt.
+define("MASTER_PASSWORD", "90eedcbe58aacedc7dfa2ce8311f9cc6e92481e9ff2aadd43a98d806576effc8663a51588fd713098c79a6a7082aa485774742069437cb5e61c61c9a2624a79a");
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */

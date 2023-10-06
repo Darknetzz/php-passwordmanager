@@ -67,7 +67,7 @@ $pwInput = "Please enter master password:
 
 # User is attempting to sign in, but password is incorrect
 if (isset($_POST['mpassword'])) {
-  $hpw = hash("sha512", $_POST['mpassword']);
+  $hpw = hash("sha512", $_POST['mpassword'].SALT);
   if ($hpw <> MASTER_PASSWORD) {
     echo alert("Invalid password", "danger");
     die($pwInput);
@@ -220,7 +220,12 @@ $accounts = mysqli_query($sqlcon, $accounts);
 echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
 echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
 echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
+echo "<hr>";
+echo "<div id='errors'></div>"; # for outputting errors from javascript
 
+if ($accounts->num_rows < 1) {
+  die(alert("Nothing added yet!"));
+}
 $iteration = 1;
 while ($account = $accounts->fetch_assoc()) {
   if ($account['2fa'] == 1) {

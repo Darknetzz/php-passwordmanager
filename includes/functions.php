@@ -12,7 +12,7 @@ function decrypt($s, $p) {
 }
 
 # passGen(15, "lud")
-function passGen($l, $t) {
+function passGen($l = 15, $t = 'lud') {
     try {
         $lc = strpos($t, "l");
         $uc = strpos($t, "u");

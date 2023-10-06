@@ -17,47 +17,38 @@ if (file_exists(CONFIG_FILE) && !empty(file_get_contents(CONFIG_FILE))) {
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                              Custom functions                              */
 /* ────────────────────────────────────────────────────────────────────────── */
-$category = function($name) {
-  return '<tr><th colspan=100%"><h4>'.$name.'</h4></th></tr>';
-};
-$option = function($name, $description, $type, $default = "", $required = "") {
-  return '<tr><td>'.$description.'</td> <td>
-  <input type="'.$type.'" name="'.$name.'" placeholder="'.$default.'" class="form-control" '.$required.'></td></tr>';
-};
-
-$values = [
-  # NAME               # DEFAULT            # DESCRIPTION   # TYPE
-  "MySQL" => [
-    ['MYSQL_HOST'    , "127.0.0.1"          , "MYSQL Server"  , "text"    ], 
-    ['MYSQL_USER'    , "root"               , "MYSQL Username", "text"    ], 
-    ['MYSQL_PASSWORD', ""                   , "MYSQL Password", "password"], 
-    ['MYSQL_DB'      , "php_passwordmanager", "MYSQL Database", "text"    ], 
-  ],
-  "General" => [
-    ['master_password', ""                    , "Vault Master Password", "password"], 
-    ['title'          , "PHP Password Manager", "Page Title"           , "text"], 
-  ],
-];
+$options = "";
+function addCategory(string $categoryName) {
+  global $options;
+  $options .= '
+  <tr><th colspan="100%"><h4>'.$categoryName.'</h4></th></tr>
+  ';
+}
+function addInput(string $name, string $default, string $description, string $type = 'text', bool $genInput = false, bool $required = false) {
+  global $options;
+  $required = ($required === true ? $required = 'required' : null);
+  $genpass  = ($genInput  === true ? $genInput  = 'genInput' : null);
+  $options .= '
+    <tr>
+      <td class='.$genpass.'>'.$description.'</td> 
+      <td>
+        <input type="hidden" name="'.$name.'_DEFAULT" value="'.$default.'">
+        <input type="'.$type.'" id="'.$name.'" name="'.$name.'" placeholder="'.$default.'" class="form-control" '.$required.'>
+      </td>
+    </tr>';
+}
 
 $options = "";
-$thiscategory = "";
-foreach ($values as $c => $value) {
-  if ($c != $thiscategory) {
-    $options .= $category($c);
-  }
-
-  foreach ($value as $thisval) {
-    $name        = $thisval[0];
-    $default     = $thisval[1];
-    $description = $thisval[2];
-    $type        = $thisval[3];
-    $required    = false;
-    if ($name == "master_password") {
-      $required = "required";
-    }
-    $options .= $option($name, $description, $type, $default, $required);
-  }  
-}
+addCategory("MySQL");
+addInput('MYSQL_HOST', '127.0.0.1', 'MySQL Server');
+addInput('MYSQL_USER', 'root', 'MySQL Username');
+addInput('MYSQL_PASSWORD', '', 'MySQL Password', 'password');
+addInput('MYSQL_DB'      , 'php_passwordmanager', 'MYSQL Database', 'text');
+addCategory("General");
+// addInput('PEPPER', '', 'Pepper', 'text', 'form-control autogen');
+addInput('MASTER_PASSWORD', '', 'Vault Master Password', 'password', true, true);
+addInput('SALT', passGen(), 'Salt', 'text', true);
+addInput('TITLE', 'PHP Password Manager', 'Page Title', 'text');
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                                 Config card                                */
@@ -66,16 +57,14 @@ $configCard = '
 <div class="card">
 <h3 class="card-header">Configuration</h3>
 <div class="card-body">
-<span class="text-muted">Please specify your configuration here, or alternatively change the <code>config_example.php</code> file to your likings..</span>
+<span class="text-muted">Please specify your configuration here, or alternatively change the <code>config_example.php</code> to your likings and rename it to <code>config.php</code>.</span><br>
 <hr>
-<form action="" method="POST" style="max-width:60%;">
+<form action="" method="POST">
 <table class="table table-default">
 '.$options.'
 </table>
 <button class="btn btn-success" name="startsetup">Save</button>
-<button class="btn btn-secondary" class="genPass" data-output="#genOutput">Generate password</button>
 </form>
-<span id="genOutput"></span>
 </div>
 </div>
 </div>
@@ -114,24 +103,33 @@ while ($status == 0) {
   /* ────────────────────────────────────────────────────────────────────────── */
   /*                         Verify all required values                         */
   /* ────────────────────────────────────────────────────────────────────────── */
-  foreach ($values as $c => $value) {
-    foreach ($value as $thisval) {
-      $name = $thisval[0];
-      $default = $thisval[1];
-      $description = $thisval[2];
+  // foreach ($values as $c => $value) {
+  //   foreach ($value as $thisval) {
+  //     $name = $thisval[0];
+  //     $default = $thisval[1];
+  //     $description = $thisval[2];
       
-      $setup[$name] = $_POST[$name];
-      if (empty($setup[$name])) {
-        $setup[$name] = $default;
-      }
+  //     $setup[$name] = $_POST[$name];
+  //     if (empty($setup[$name])) {
+  //       $setup[$name] = $default;
+  //     }
+  //   }
+  // }
+  $setup = $_POST;
+
+  foreach ($setup as $var => $val) {
+    if (empty($val)) {
+      $setup[$var] = $setup[$var.'_DEFAULT'];
     }
   }
-  if (empty($setup['master_password'])) {
+
+  
+  if (empty($setup['MASTER_PASSWORD'])) {
     setup_error("You must specify a master password!", 40);
     break;
   }
 
-  if (strlen($setup['master_password']) < MASTER_PASSWORD_MINLEN) {
+  if (strlen($setup['MASTER_PASSWORD']) < MASTER_PASSWORD_MINLEN) {
     setup_error("The master password must be more than ".MASTER_PASSWORD_MINLEN." characters.", 41);
     break;
   }
@@ -156,6 +154,8 @@ while ($status == 0) {
         mysqli_query($sqlcon, "CREATE DATABASE $dbName;"); # TODO: directly allowing a POST value in the query...
         setup_info("Database $dbName created!", "success");
     } catch (Throwable $t) {
+        setup_info("The database $dbName could not be created. $t", "danger");
+        die();
         $attempts = 0;
         $try      = 3;
         $created  = 0;
@@ -208,7 +208,7 @@ while ($status == 0) {
       $thisTable = "";
       foreach ($sql_template as $tableName => $createColumn) {
         if ($tableName != $thisTable) {
-          $query = "CREATE TABLE $tableName (id INT NOT NULL);";
+          $query = "CREATE TABLE $tableName (id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (id));";
           $query = $sqlcon->prepare($query);
           $query->execute();
           $thisTable = $tableName;
@@ -251,13 +251,28 @@ while ($status == 0) {
         $encodedPass = base64_encode($setup['MYSQL_PASSWORD']);
         $configToWrite = '
 <?php
-# Change this file to match your SQL-connection and add a master password.
+# Change this file to match your SQL-connection and add a master password, or configure it from the setup.php.
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                               Master password                              */
 /* ────────────────────────────────────────────────────────────────────────── */
+/*
+
+    How:
+        - Use a hashing tool online like https://roste.org/rand/#hash
+        - Insert the pepper + master password + salt into the SHA512 input field.
+
+    Example:
+        If salt is set to SALT, your password needs to be hashed like this: <YOUR_PASSWORD>SALT
+
+*/
+
+# Optional appended salt
+define("SALT", "'.$setup['SALT'].'");
+
 # Your master password in SHA512 format
-define("MASTER_PASSWORD", "'.hash('sha512', $setup['master_password']).'");
+# This password is set to be CHANGEME, with the above salt.
+define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
