@@ -14,7 +14,8 @@ Download the latest release from this repo and put the files on your webserver.
 * Clone this repo into your webserver
 ````bash
 cd /var/www/html
-git clone https://github.com/Darknetzz/php-passwordmanager.git
+git clone https://github.com/Darknetzz/php-passwordmanager.git php-passwordmanager
+chown -R www-data php-passwordmanager
 ````
 
 
