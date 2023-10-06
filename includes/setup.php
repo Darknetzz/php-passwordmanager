@@ -63,14 +63,14 @@ $configCard = '
 <table class="table table-default">
 '.$options.'
 </table>
-<button class="btn btn-success" name="startsetup">Save</button>
+<button class="btn btn-success">Save</button>
 </form>
 </div>
 </div>
 </div>
 ';
 
-if (isset($_POST['startsetup'])) {
+if (!empty($_POST)) {
 
 while ($status == 0) {
   /* ────────────────────────────────────────────────────────────────────────── */
@@ -118,9 +118,15 @@ while ($status == 0) {
   $setup = $_POST;
 
   foreach ($setup as $var => $val) {
-    if (empty($val)) {
-      $setup[$var] = $setup[$var.'_DEFAULT'];
+
+    if (strpos($var, '_DEFAULT') !== false) {
+      continue;
     }
+
+    if (empty($val)) {
+      $setup[$var] = $_POST[$var.'_DEFAULT'];
+    }
+    
   }
 
   
