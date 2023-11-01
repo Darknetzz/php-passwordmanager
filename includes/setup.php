@@ -17,43 +17,122 @@ if (file_exists(CONFIG_FILE) && !empty(file_get_contents(CONFIG_FILE))) {
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                              Custom functions                              */
 /* ────────────────────────────────────────────────────────────────────────── */
-$options = "";
+$inputs = "";
 function addCategory(string $categoryName) {
-  global $options;
-  $options .= '
+  global $inputs;
+  $inputs .= '
   <tr><th colspan="100%"><h4>'.$categoryName.'</h4></th></tr>
   ';
 }
-function addInput(string $name, string $default, string $description, string $type = 'text', bool $genInput = false, string $opts = '') {
-  global $options;
-  $required = ($required === true ? $required = 'required' : null);
-  $genpass  = ($genInput  === true ? $genInput  = 'genInput' : null);
-  $default  = (!empty($_POST[$name]) ? $_POST[$name] : $default);
-  $val      = (!empty($_POST[$name]) ? "value='$_POST[$name]'" : '');
-  $options .= '
+function addInput(string $name, array $opts = []) {
+  global $inputs;
+
+  $defaultopts = [
+    'class'       => 'form-control',
+    'value'       => null,
+    'placeholder' => null,
+    'genpass'     => false,
+    'type'        => 'text',
+    'description' => null,
+    'attributes'  => null,
+  ];
+
+  foreach ($defaultopts as $optname => $optval) {
+    if (empty($opts[$optname])) {
+      $opts[$optname] = $optval;
+    }
+  }
+
+  $class        = $opts['class'];
+  $placeholder  = (!empty($opts['placeholder']) ? $opts['placeholder'] : $opts['value']);
+
+  if (!empty($opts['value'])) {
+    $value = $opts['value'];
+  }
+  if (!empty($_POST[$name])) {
+    $value = $_POST[$name];
+  } 
+
+  $inputs .= '
     <tr>
-      <td>'.$description.'</td> 
+      <td>'.$opts['description'].'</td> 
       <td>
-        <input type="hidden" name="'.$name.'_DEFAULT" value="'.$default.'">
-        <input type="'.$type.'" id="'.$name.'" name="'.$name.'" placeholder="'.$default.'" class="form-control '.$genpass.'" '.$val.' '.$opts.'>
+        <input type="hidden" name="'.$name.'_DEFAULT" value="'.$opts['placeholder'].'">
+        <input 
+          type="'.$opts['type'].'"
+          id="'.$name.'"
+          name="'.$name.'"
+          placeholder="'.$placeholder.'"
+          class="'.$opts['class'].'"
+          value="'.$value.'"
+          '.$opts['attributes'].'
+        >
       </td>
     </tr>';
 }
 
-$options = "";
-addCategory("MySQL");
-addInput('MYSQL_HOST', '127.0.0.1', 'MySQL Server');
-addInput('MYSQL_USER', 'root', 'MySQL Username');
-addInput('MYSQL_PASSWORD', '', 'MySQL Password', 'password');
-addInput('MYSQL_DB'      , 'php_passwordmanager', 'MYSQL Database', 'text');
-addCategory("General");
-// addInput('PEPPER', '', 'Pepper', 'text', 'form-control autogen');
-addInput('MASTER_PASSWORD', '', 'Vault Master Password', 'password', true, 'required');
-// addInput('MASTER_IV', '', 'Master IV', 'text', opts: 'readonly');
-addInput('ENC_METHOD', 'AES256-CNC', 'Encryption Method', opts: 'readonly');
-addInput('SALT', passGen(), 'Salt', 'text', true);
-addInput('TITLE', 'PHP Password Manager', 'Page Title', 'text');
-addInput('BACKGROUND_COLOR', '', "Background Color", "color", opts: "value='#444444'");
+$inputs = "";
+  addCategory("MySQL");
+
+  addInput('MYSQL_HOST', 
+  [
+    'placeholder' => '127.0.0.1',
+    'description' => 'MySQL Host', 
+  ]);
+
+  addInput('MYSQL_USER', 
+  [
+    'placeholder' => 'root', 
+    'description' => 'MySQL Username'
+  ]);
+
+  addInput('MYSQL_PASSWORD', 
+  [
+    'description' => 'MySQL Password',
+    'type'        => 'password'
+  ]);
+
+  addInput('MYSQL_DB', 
+  [
+    'placeholder' => 'php_passwordmanager',
+    'description' => 'MYSQL Database',
+  ]);
+
+  addCategory("General");
+
+  addInput('MASTER_PASSWORD', 
+  [
+    'description' => 'Vault Master Password',
+    'type'        => 'password',
+    'attributes'  => 'required',
+  ]);
+
+  addInput('ENC_METHOD', 
+  [
+    'placeholder' => 'AES256-CNC',
+    'description' => 'Encryption Method',
+    'attributes'  => 'readonly'
+  ]);
+
+  addInput('SALT', 
+  [
+    'placeholder'     => passGen(32),
+    'description' => 'Salt',
+  ]);
+
+  addInput('TITLE', 
+  [
+    'placeholder'     => 'PHP Password Manager',
+    'description' => 'Page Title',
+  ]);
+
+  addInput('BACKGROUND_COLOR', 
+  [
+    'class'       => 'form-control form-control-color',
+    'description' => "Background Color",
+    'value'       => '#444444',
+    'type'        => 'color',
+  ]);
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                                 Config card                                */
@@ -66,7 +145,7 @@ $configCard = '
 <hr>
 <form action="" method="POST">
 <table class="table table-default">
-'.$options.'
+'.$inputs.'
 </table>
 <button class="btn btn-success">Save</button>
 </form>
@@ -331,7 +410,7 @@ if ($status == 0) {
     // require_once('sqlcon.php');
 
     if (empty(file_get_contents('sqlcon.php'))) {
-      echo alert("Database was created but sqlcon.php is empty. Please verify permissions.");
+      setup_error("Database was created but sqlcon.php is empty. Please verify permissions.");
     }
 
     echo alert("Setup complete! <a href=''>Log in?</a>", "success");
