@@ -95,7 +95,8 @@ if (isset($_POST['edit'])) {
   $name = mysqli_real_escape_string($sqlcon,$_POST['name']);
   $username = mysqli_real_escape_string($sqlcon,$_POST['username']);
   $salt = passGen(32, 'lud');
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD);
+  $iv = genIV();
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, $iv);
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -103,7 +104,7 @@ if (isset($_POST['edit'])) {
   $exists = "SELECT * FROM accounts WHERE `id` = '$id'";
   $exists = mysqli_query($sqlcon, $exists);
   if ($exists->num_rows > 0) {
-  $edit = "UPDATE accounts SET `name` = '$name', `username` = '$username', `password` = '$password', `salt` = '$salt', `url` = '$url', `description` = '$desc', `2fa` = '$tfa' WHERE id = '$id'";
+  $edit = "UPDATE accounts SET `name` = '$name', `username` = '$username', `password` = '$password', `salt` = '$salt', `iv` = '$iv', `url` = '$url', `description` = '$desc', `2fa` = '$tfa' WHERE id = '$id'";
   $edit = mysqli_query($sqlcon, $edit);
   if ($edit) {
     echo "<div class='alert alert-success'>Entry <b>$name</b> updated!</div>";
@@ -119,11 +120,12 @@ if (isset($_POST['add'])) {
   $name = mysqli_real_escape_string($sqlcon, $_POST['name']);
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
   $salt = passGen(32, 'lud');
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD);
+  $iv = genIV();
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, $iv);
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
-  $add = "INSERT INTO accounts (`name`, `username`, `password`, `salt`, `description`, `url`, `2fa`) VALUES ('$name', '$username', '$password', '$salt', '$desc', '$url', '$tfa')";
+  $add = "INSERT INTO accounts (`name`, `username`, `password`, `salt`, `iv`, `description`, `url`, `2fa`) VALUES ('$name', '$username', '$password', '$salt', '$iv', '$desc', '$url', '$tfa')";
   $add = mysqli_query($sqlcon, $add);
   if ($add) {
     echo "<div class='alert alert-success'>Entry added.</div>";
@@ -236,9 +238,9 @@ while ($account = $accounts->fetch_assoc()) {
   # EDIT ENTRY
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
-    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD);
+    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, MASTER_IV);
   } else {
-    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD);
+    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, MASTER_IV);
   }
   echo '
   <!-- Modal -->

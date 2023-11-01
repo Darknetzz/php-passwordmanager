@@ -54,17 +54,17 @@ $(document).ready(function() {
     
     $(".genPass").on("click", function(e) {
         e.preventDefault();
-        var outputTarget = $(this).data('output');
+        var outputTarget = $(this);
         var gen = genPass();
-        console.log("Generated password "+gen+" - outputting to "+outputTarget);
+        console.log("Generated password "+gen);
         $(outputTarget).prop("type", "text");
         $(outputTarget).val(genPass());
     });
 
     $(".genInput").each(function() {
-      const output = '#'+$(this).parent().find('input').attr('id');
-      const genBtn = '<button type="button" class="genPass" data-output="'+output+'">🎲</button>';
-      $(this).html($(this).html()+' '+genBtn);
+      const output = $(this).parent();
+      const genBtn = '<button type="button" class="btn btn-default genPass">🎲</button>';
+      $(this).parent().prepend(genBtn);
     });
     
 });

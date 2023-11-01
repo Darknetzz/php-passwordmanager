@@ -22,6 +22,9 @@ define("SALT", "CHANGEME");
 # This password is set to be CHANGEME, with the above salt.
 define("MASTER_PASSWORD", "90eedcbe58aacedc7dfa2ce8311f9cc6e92481e9ff2aadd43a98d806576effc8663a51588fd713098c79a6a7082aa485774742069437cb5e61c61c9a2624a79a");
 
+# The encryption method to use
+define("ENC_METHOD", "AES-256-CBC");
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
 /* ────────────────────────────────────────────────────────────────────────── */

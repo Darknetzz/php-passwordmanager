@@ -24,16 +24,18 @@ function addCategory(string $categoryName) {
   <tr><th colspan="100%"><h4>'.$categoryName.'</h4></th></tr>
   ';
 }
-function addInput(string $name, string $default, string $description, string $type = 'text', bool $genInput = false, bool $required = false) {
+function addInput(string $name, string $default, string $description, string $type = 'text', bool $genInput = false, string $opts = '') {
   global $options;
   $required = ($required === true ? $required = 'required' : null);
   $genpass  = ($genInput  === true ? $genInput  = 'genInput' : null);
+  $default  = (!empty($_POST[$name]) ? $_POST[$name] : $default);
+  $val      = (!empty($_POST[$name]) ? "value='$_POST[$name]'" : '');
   $options .= '
     <tr>
-      <td class='.$genpass.'>'.$description.'</td> 
+      <td>'.$description.'</td> 
       <td>
         <input type="hidden" name="'.$name.'_DEFAULT" value="'.$default.'">
-        <input type="'.$type.'" id="'.$name.'" name="'.$name.'" placeholder="'.$default.'" class="form-control" '.$required.'>
+        <input type="'.$type.'" id="'.$name.'" name="'.$name.'" placeholder="'.$default.'" class="form-control '.$genpass.'" '.$val.' '.$opts.'>
       </td>
     </tr>';
 }
@@ -46,9 +48,12 @@ addInput('MYSQL_PASSWORD', '', 'MySQL Password', 'password');
 addInput('MYSQL_DB'      , 'php_passwordmanager', 'MYSQL Database', 'text');
 addCategory("General");
 // addInput('PEPPER', '', 'Pepper', 'text', 'form-control autogen');
-addInput('MASTER_PASSWORD', '', 'Vault Master Password', 'password', true, true);
+addInput('MASTER_PASSWORD', '', 'Vault Master Password', 'password', true, 'required');
+// addInput('MASTER_IV', '', 'Master IV', 'text', opts: 'readonly');
+addInput('ENC_METHOD', 'AES256-CNC', 'Encryption Method', opts: 'readonly');
 addInput('SALT', passGen(), 'Salt', 'text', true);
 addInput('TITLE', 'PHP Password Manager', 'Page Title', 'text');
+addInput('BACKGROUND_COLOR', '', "Background Color", "color", opts: "value='#444444'");
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                                 Config card                                */
@@ -160,34 +165,34 @@ while ($status == 0) {
         mysqli_query($sqlcon, "CREATE DATABASE $dbName;"); # TODO: directly allowing a POST value in the query...
         setup_info("Database $dbName created!", "success");
     } catch (Throwable $t) {
-        $attempts = 0;
-        $try      = 3;
-        $created  = 0;
-        do {
-            try {
-                setup_info("The database $dbName could not be created, attempting to rename...", "warning");
-                $append = passGen(5, 'lud');
+        // $attempts = 0;
+        // $try      = 3;
+        // $created  = 0;
+        // do {
+        //     try {
+        //         setup_info("The database $dbName could not be created, attempting to rename...", "warning");
+        //         $append = passGen(5, 'lud');
 
-                # Sjekk om databasen finnes
-                $dbName = $dbName."_".$append;
-                $setup['MYSQL_DB'] = $dbName;
+        //         # Sjekk om databasen finnes
+        //         $dbName = $dbName."_".$append;
+        //         $setup['MYSQL_DB'] = $dbName;
 
-                mysqli_query($sqlcon, "DROP DATABASE IF EXISTS $dbName;");
-                mysqli_query($sqlcon, "CREATE DATABASE $dbName;");         
-                setup_info("Database $dbName created!", "success");
-                $created = 1;
-            } catch (Throwable $t) {
-                $attempts++;
-                setup_info("Unable to create database $dbName.", "warning");
-                setup_info($t, "danger");
-            }
+        //         mysqli_query($sqlcon, "DROP DATABASE IF EXISTS $dbName;");
+        //         mysqli_query($sqlcon, "CREATE DATABASE $dbName;");         
+        //         setup_info("Database $dbName created!", "success");
+        //         $created = 1;
+        //     } catch (Throwable $t) {
+        //         $attempts++;
+        //         setup_info("Unable to create database $dbName.", "warning");
+        //         setup_info($t, "danger");
+        //     }
 
-            break;
+        //     break;
 
-        } while ($attempts < $try);
+        // } while ($attempts < $try);
 
         if ($created == 0) {
-            setup_error("Database could not be created after $attempts attempts. Exiting...");
+            setup_error("Database could not be created. Exiting...");
             setup_error($t->getMessage());
         }
     }
@@ -252,6 +257,10 @@ while ($status == 0) {
     /* ────────────────────────────────────────────────────────────────────────── */
     try {
         # I know this does nothing, but at least the password can't be seen in cleartext
+        $iv_len   = openssl_cipher_iv_length($setup['ENC_METHOD']);
+        $iv_bytes = openssl_random_pseudo_bytes($iv_len);
+        $iv       = bin2hex($bytes);
+
         $encodedPass = base64_encode($setup['MYSQL_PASSWORD']);
         $configToWrite = '
 <?php
@@ -278,6 +287,11 @@ define("SALT", "'.$setup['SALT'].'");
 # This password is set to be CHANGEME, with the above salt.
 define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
 
+# The encryption method to use
+define("ENC_METHOD", "'.$setup['ENC_METHOD'].'");
+
+define("MASTER_IV", "'.$iv.'");
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -298,7 +312,7 @@ define("BACKGROUND_COLOR", "#111");
       fwrite($f, $configToWrite);
       echo "<div class='alert alert-success'>Config updated! <a href=''>Go to login</a></div>";
       fclose($f);
-      die();
+      // die();
       } catch (Throwable $t) {
         setup_error("Unable to create config file");
         setup_error($t->getMessage());
@@ -314,9 +328,13 @@ foreach ($info as $i) {
 
 /* ──────────────────────────────── STATUS OK ─────────────────────────────── */
 if ($status == 0) {
-    require_once('sqlcon.php');
+    // require_once('sqlcon.php');
 
-    alert("Setup complete! <a href=''>Log in?</a>", "success");
+    if (empty(file_get_contents('sqlcon.php'))) {
+      echo alert("Database was created but sqlcon.php is empty. Please verify permissions.");
+    }
+
+    echo alert("Setup complete! <a href=''>Log in?</a>", "success");
 /* ────────────────────────────── ERROR OCCURED ───────────────────────────── */
 } else {
     echo alert("<b>Error $status occured:</b> <hr>".implode("<br><br>", $error), "danger");
