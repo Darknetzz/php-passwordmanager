@@ -238,9 +238,9 @@ while ($account = $accounts->fetch_assoc()) {
   # EDIT ENTRY
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
-    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, MASTER_IV);
+    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, hex2bin($account['iv']));
   } else {
-    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, MASTER_IV);
+    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, hex2bin($account['iv']));
   }
   echo '
   <!-- Modal -->

@@ -28,7 +28,7 @@ define("MASTER_PASSWORD", "90eedcbe58aacedc7dfa2ce8311f9cc6e92481e9ff2aadd43a98d
 define("ENC_METHOD", "AES-256-CBC");
 
 # The IV to use for the master password
-define("MASTER_IV", "63325357416f6e357474616f53787651");
+// define("MASTER_IV", "63325357416f6e357474616f53787651");
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
