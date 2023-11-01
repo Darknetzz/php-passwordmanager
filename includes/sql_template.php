@@ -4,6 +4,7 @@
     ["username", "varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;"],
     ["password", "varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;"],
     ["salt", "varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL;"],
+    ["iv", "varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL;"],
     ["url", "varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;"],
     ["description", "text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;"],
     ["2fa", "tinyint(1) NOT NULL DEFAULT 0;"],

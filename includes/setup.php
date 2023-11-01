@@ -14,41 +14,126 @@ if (file_exists(CONFIG_FILE) && !empty(file_get_contents(CONFIG_FILE))) {
   die(alert("The config file ".CONFIG_FILE." already exists and is not empty. Please modify it directly or delete it to continue setup."));
 }
 
+# Touch the file
+touch(CONFIG_FILE);
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                              Custom functions                              */
 /* ────────────────────────────────────────────────────────────────────────── */
-$options = "";
+$inputs = "";
 function addCategory(string $categoryName) {
-  global $options;
-  $options .= '
+  global $inputs;
+  $inputs .= '
   <tr><th colspan="100%"><h4>'.$categoryName.'</h4></th></tr>
   ';
 }
-function addInput(string $name, string $default, string $description, string $type = 'text', bool $genInput = false, bool $required = false) {
-  global $options;
-  $required = ($required === true ? $required = 'required' : null);
-  $genpass  = ($genInput  === true ? $genInput  = 'genInput' : null);
-  $options .= '
+function addInput(string $name, array $opts = []) {
+  global $inputs;
+
+  $defaultopts = [
+    'class'       => 'form-control',
+    'value'       => '',
+    'placeholder' => '',
+    'genpass'     => false,
+    'type'        => 'text',
+    'description' => '',
+    'attributes'  => '',
+  ];
+
+  foreach ($defaultopts as $optname => $optval) {
+    if (empty($opts[$optname])) {
+      $opts[$optname] = $optval;
+    }
+  }
+
+  $class        = $opts['class'];
+  $placeholder  = (!empty($opts['placeholder']) ? $opts['placeholder'] : $opts['value']);
+
+  $value = $opts['value'];
+  if (!empty($_POST[$name])) {
+    $value = $_POST[$name];
+  } 
+
+  $inputs .= '
     <tr>
-      <td class='.$genpass.'>'.$description.'</td> 
+      <td>'.$opts['description'].'</td> 
       <td>
-        <input type="hidden" name="'.$name.'_DEFAULT" value="'.$default.'">
-        <input type="'.$type.'" id="'.$name.'" name="'.$name.'" placeholder="'.$default.'" class="form-control" '.$required.'>
+        <input type="hidden" name="'.$name.'_DEFAULT" value="'.$opts['placeholder'].'">
+        <input 
+          type="'.$opts['type'].'"
+          id="'.$name.'"
+          name="'.$name.'"
+          placeholder="'.$placeholder.'"
+          class="'.$opts['class'].'"
+          value="'.$value.'"
+          '.$opts['attributes'].'
+        >
       </td>
     </tr>';
 }
 
-$options = "";
-addCategory("MySQL");
-addInput('MYSQL_HOST', '127.0.0.1', 'MySQL Server');
-addInput('MYSQL_USER', 'root', 'MySQL Username');
-addInput('MYSQL_PASSWORD', '', 'MySQL Password', 'password');
-addInput('MYSQL_DB'      , 'php_passwordmanager', 'MYSQL Database', 'text');
-addCategory("General");
-// addInput('PEPPER', '', 'Pepper', 'text', 'form-control autogen');
-addInput('MASTER_PASSWORD', '', 'Vault Master Password', 'password', true, true);
-addInput('SALT', passGen(), 'Salt', 'text', true);
-addInput('TITLE', 'PHP Password Manager', 'Page Title', 'text');
+$inputs = "";
+  addCategory("MySQL");
+
+  addInput('MYSQL_HOST', 
+  [
+    'placeholder' => '127.0.0.1',
+    'description' => 'MySQL Host', 
+  ]);
+
+  addInput('MYSQL_USER', 
+  [
+    'placeholder' => 'root', 
+    'description' => 'MySQL Username'
+  ]);
+
+  addInput('MYSQL_PASSWORD', 
+  [
+    'description' => 'MySQL Password',
+    'type'        => 'password'
+  ]);
+
+  addInput('MYSQL_DB', 
+  [
+    'placeholder' => 'php_passwordmanager',
+    'description' => 'MYSQL Database',
+  ]);
+
+  addCategory("General");
+
+  addInput('MASTER_PASSWORD', 
+  [
+    'description' => 'Vault Master Password',
+    'type'        => 'password',
+    'attributes'  => 'required',
+  ]);
+
+  addInput('ENC_METHOD', 
+  [
+    'placeholder' => 'AES256-CNC',
+    'description' => 'Encryption Method',
+    'attributes'  => 'readonly'
+  ]);
+
+  addInput('SALT', 
+  [
+    'placeholder'     => passGen(32),
+    'description' => 'Salt',
+  ]);
+
+  addInput('TITLE', 
+  [
+    'placeholder'     => 'PHP Password Manager',
+    'description' => 'Page Title',
+  ]);
+
+  addInput('BACKGROUND_COLOR', 
+  [
+    'class'       => 'form-control form-control-color',
+    'description' => "Background Color",
+    'value'       => '#444444',
+    'type'        => 'color',
+  ]);
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                                 Config card                                */
@@ -61,7 +146,7 @@ $configCard = '
 <hr>
 <form action="" method="POST">
 <table class="table table-default">
-'.$options.'
+'.$inputs.'
 </table>
 <button class="btn btn-success">Save</button>
 </form>
@@ -93,12 +178,12 @@ while ($status == 0) {
   /* ────────────────────────────────────────────────────────────────────────── */
   /*                              Check if writable                             */
   /* ────────────────────────────────────────────────────────────────────────── */
-  $f = fopen(CONFIG_FILE, 'w+');
-  if (!$f) {
-    setup_error('The configuration file <code>'.CONFIG_FILE.'</code> doesn\'t exist, and this script does not have access to it.
-    Please change your configuration in <code>config_example.php</code> and rename/copy the file to <code>config.php</code>', 2);
-    break;
-  }
+  // $f = fopen(CONFIG_FILE, 'w+');
+  // if (!$f) {
+  //   setup_error('The configuration file <code>'.CONFIG_FILE.'</code> doesn\'t exist, and this script does not have access to it.
+  //   Please change your configuration in <code>config_example.php</code> and rename/copy the file to <code>config.php</code>', 2);
+  //   break;
+  // }
 
   /* ────────────────────────────────────────────────────────────────────────── */
   /*                         Verify all required values                         */
@@ -160,34 +245,34 @@ while ($status == 0) {
         mysqli_query($sqlcon, "CREATE DATABASE $dbName;"); # TODO: directly allowing a POST value in the query...
         setup_info("Database $dbName created!", "success");
     } catch (Throwable $t) {
-        $attempts = 0;
-        $try      = 3;
-        $created  = 0;
-        do {
-            try {
-                setup_info("The database $dbName could not be created, attempting to rename...", "warning");
-                $append = passGen(5, 'lud');
+        // $attempts = 0;
+        // $try      = 3;
+        // $created  = 0;
+        // do {
+        //     try {
+        //         setup_info("The database $dbName could not be created, attempting to rename...", "warning");
+        //         $append = passGen(5, 'lud');
 
-                # Sjekk om databasen finnes
-                $dbName = $dbName."_".$append;
-                $setup['MYSQL_DB'] = $dbName;
+        //         # Sjekk om databasen finnes
+        //         $dbName = $dbName."_".$append;
+        //         $setup['MYSQL_DB'] = $dbName;
 
-                mysqli_query($sqlcon, "DROP DATABASE IF EXISTS $dbName;");
-                mysqli_query($sqlcon, "CREATE DATABASE $dbName;");         
-                setup_info("Database $dbName created!", "success");
-                $created = 1;
-            } catch (Throwable $t) {
-                $attempts++;
-                setup_info("Unable to create database $dbName.", "warning");
-                setup_info($t, "danger");
-            }
+        //         mysqli_query($sqlcon, "DROP DATABASE IF EXISTS $dbName;");
+        //         mysqli_query($sqlcon, "CREATE DATABASE $dbName;");         
+        //         setup_info("Database $dbName created!", "success");
+        //         $created = 1;
+        //     } catch (Throwable $t) {
+        //         $attempts++;
+        //         setup_info("Unable to create database $dbName.", "warning");
+        //         setup_info($t, "danger");
+        //     }
 
-            break;
+        //     break;
 
-        } while ($attempts < $try);
+        // } while ($attempts < $try);
 
         if ($created == 0) {
-            setup_error("Database could not be created after $attempts attempts. Exiting...");
+            setup_error("Database could not be created. Exiting...");
             setup_error($t->getMessage());
         }
     }
@@ -251,7 +336,11 @@ while ($status == 0) {
     /*                              Write config file                             */
     /* ────────────────────────────────────────────────────────────────────────── */
     try {
-        # I know this does nothing, but at least the password can't be seen in cleartext
+        // $iv_len   = openssl_cipher_iv_length($setup['ENC_METHOD']);
+        // $iv_bytes = openssl_random_pseudo_bytes($iv_len);
+        // $iv       = bin2hex($bytes);
+      
+      # I know this does nothing, but at least the password can't be seen in cleartext
         $encodedPass = base64_encode($setup['MYSQL_PASSWORD']);
         $configToWrite = '
 <?php
@@ -278,6 +367,13 @@ define("SALT", "'.$setup['SALT'].'");
 # This password is set to be CHANGEME, with the above salt.
 define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
 
+# The encryption method to use
+define("ENC_METHOD", "'.$setup['aes-256-cbc'].'");
+
+if (!in_array(ENC_METHOD, openssl_get_cipher_methods())) {
+    die("Invalid cipher method ".ENC_METHOD);
+}
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -295,9 +391,9 @@ define("BACKGROUND_COLOR", "#111");
 ?>
       ';
 
-      fwrite($f, $configToWrite);
+      // fwrite($f, $configToWrite);
+      file_put_contents(CONFIG_FILE, $configToWrite);
       echo "<div class='alert alert-success'>Config updated! <a href=''>Go to login</a></div>";
-      fclose($f);
       die();
       } catch (Throwable $t) {
         setup_error("Unable to create config file");
@@ -314,9 +410,12 @@ foreach ($info as $i) {
 
 /* ──────────────────────────────── STATUS OK ─────────────────────────────── */
 if ($status == 0) {
-    require_once('sqlcon.php');
 
-    alert("Setup complete! <a href=''>Log in?</a>", "success");
+    if (!file_get_contents(CONFIG_FILE) || empty(file_get_contents(CONFIG_FILE))) {
+      setup_error("Database was created but ".CONFIG_FILE." is empty. Please verify permissions.");
+    }
+
+    echo alert("Setup complete! <a href=''>Log in?</a>", "success");
 /* ────────────────────────────── ERROR OCCURED ───────────────────────────── */
 } else {
     echo alert("<b>Error $status occured:</b> <hr>".implode("<br><br>", $error), "danger");

@@ -1,13 +1,18 @@
 <?php
-function encrypt($s, $p) {
-    $method = 'aes256';
-    $encrypted = openssl_encrypt($s, $method, $p);
+
+function genIV() {
+    $len   = openssl_cipher_iv_length(ENC_METHOD);
+    $bytes = openssl_random_pseudo_bytes($len);
+    return bin2hex($bytes);
+}
+
+function encrypt($s, $p, $iv = "") {
+    $encrypted = openssl_encrypt($s, ENC_METHOD, $p, iv: $iv);
     return $encrypted;
 }
 
-function decrypt($s, $p) {
-    $method = 'aes256';
-    $decrypted = openssl_decrypt($s, $method, $p);
+function decrypt($s, $p, $iv = "") {
+    $decrypted = openssl_decrypt($s, ENC_METHOD, $p, iv: $iv);
     return $decrypted;
 }
 
