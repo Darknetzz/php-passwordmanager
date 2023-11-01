@@ -14,6 +14,9 @@ if (file_exists(CONFIG_FILE) && !empty(file_get_contents(CONFIG_FILE))) {
   die(alert("The config file ".CONFIG_FILE." already exists and is not empty. Please modify it directly or delete it to continue setup."));
 }
 
+# Touch the file
+touch(CONFIG_FILE);
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                              Custom functions                              */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -29,12 +32,12 @@ function addInput(string $name, array $opts = []) {
 
   $defaultopts = [
     'class'       => 'form-control',
-    'value'       => null,
-    'placeholder' => null,
+    'value'       => '',
+    'placeholder' => '',
     'genpass'     => false,
     'type'        => 'text',
-    'description' => null,
-    'attributes'  => null,
+    'description' => '',
+    'attributes'  => '',
   ];
 
   foreach ($defaultopts as $optname => $optval) {
@@ -46,9 +49,7 @@ function addInput(string $name, array $opts = []) {
   $class        = $opts['class'];
   $placeholder  = (!empty($opts['placeholder']) ? $opts['placeholder'] : $opts['value']);
 
-  if (!empty($opts['value'])) {
-    $value = $opts['value'];
-  }
+  $value = $opts['value'];
   if (!empty($_POST[$name])) {
     $value = $_POST[$name];
   } 
@@ -177,12 +178,12 @@ while ($status == 0) {
   /* ────────────────────────────────────────────────────────────────────────── */
   /*                              Check if writable                             */
   /* ────────────────────────────────────────────────────────────────────────── */
-  $f = fopen(CONFIG_FILE, 'w+');
-  if (!$f) {
-    setup_error('The configuration file <code>'.CONFIG_FILE.'</code> doesn\'t exist, and this script does not have access to it.
-    Please change your configuration in <code>config_example.php</code> and rename/copy the file to <code>config.php</code>', 2);
-    break;
-  }
+  // $f = fopen(CONFIG_FILE, 'w+');
+  // if (!$f) {
+  //   setup_error('The configuration file <code>'.CONFIG_FILE.'</code> doesn\'t exist, and this script does not have access to it.
+  //   Please change your configuration in <code>config_example.php</code> and rename/copy the file to <code>config.php</code>', 2);
+  //   break;
+  // }
 
   /* ────────────────────────────────────────────────────────────────────────── */
   /*                         Verify all required values                         */
@@ -335,11 +336,11 @@ while ($status == 0) {
     /*                              Write config file                             */
     /* ────────────────────────────────────────────────────────────────────────── */
     try {
-        # I know this does nothing, but at least the password can't be seen in cleartext
-        $iv_len   = openssl_cipher_iv_length($setup['ENC_METHOD']);
-        $iv_bytes = openssl_random_pseudo_bytes($iv_len);
-        $iv       = bin2hex($bytes);
-
+        // $iv_len   = openssl_cipher_iv_length($setup['ENC_METHOD']);
+        // $iv_bytes = openssl_random_pseudo_bytes($iv_len);
+        // $iv       = bin2hex($bytes);
+      
+      # I know this does nothing, but at least the password can't be seen in cleartext
         $encodedPass = base64_encode($setup['MYSQL_PASSWORD']);
         $configToWrite = '
 <?php
@@ -367,9 +368,11 @@ define("SALT", "'.$setup['SALT'].'");
 define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
 
 # The encryption method to use
-define("ENC_METHOD", "'.$setup['ENC_METHOD'].'");
+define("ENC_METHOD", "'.$setup['aes-256-cbc'].'");
 
-define("MASTER_IV", "'.$iv.'");
+if (!in_array(ENC_METHOD, openssl_get_cipher_methods())) {
+    die("Invalid cipher method ".ENC_METHOD);
+}
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
@@ -388,10 +391,10 @@ define("BACKGROUND_COLOR", "#111");
 ?>
       ';
 
-      fwrite($f, $configToWrite);
+      // fwrite($f, $configToWrite);
+      file_put_contents(CONFIG_FILE, $configToWrite);
       echo "<div class='alert alert-success'>Config updated! <a href=''>Go to login</a></div>";
-      fclose($f);
-      // die();
+      die();
       } catch (Throwable $t) {
         setup_error("Unable to create config file");
         setup_error($t->getMessage());
@@ -407,10 +410,9 @@ foreach ($info as $i) {
 
 /* ──────────────────────────────── STATUS OK ─────────────────────────────── */
 if ($status == 0) {
-    // require_once('sqlcon.php');
 
-    if (empty(file_get_contents('sqlcon.php'))) {
-      setup_error("Database was created but sqlcon.php is empty. Please verify permissions.");
+    if (!file_get_contents(CONFIG_FILE) || empty(file_get_contents(CONFIG_FILE))) {
+      setup_error("Database was created but ".CONFIG_FILE." is empty. Please verify permissions.");
     }
 
     echo alert("Setup complete! <a href=''>Log in?</a>", "success");

@@ -54,7 +54,11 @@ $(document).ready(function() {
     
     $(".genPass").on("click", function(e) {
         e.preventDefault();
-        var outputTarget = $(this);
+        if ($(this).data('output') !== undefined) {
+          var outputTarget = $(this).data('output');
+        } else {
+          var outputTarget = $(this);
+        }
         var gen = genPass();
         console.log("Generated password "+gen);
         $(outputTarget).prop("type", "text");

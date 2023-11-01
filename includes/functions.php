@@ -1,7 +1,7 @@
 <?php
 
-function genIV(string $method = ENC_METHOD) {
-    $len   = openssl_cipher_iv_length($method);
+function genIV() {
+    $len   = openssl_cipher_iv_length(ENC_METHOD);
     $bytes = openssl_random_pseudo_bytes($len);
     return bin2hex($bytes);
 }
