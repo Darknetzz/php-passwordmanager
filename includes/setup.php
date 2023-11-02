@@ -110,7 +110,7 @@ $inputs = "";
 
   addInput('ENC_METHOD', 
   [
-    'placeholder' => 'AES256-CNC',
+    'placeholder' => ENC_METHOD,
     'description' => 'Encryption Method',
     'attributes'  => 'readonly'
   ]);
