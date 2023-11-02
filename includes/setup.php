@@ -110,7 +110,7 @@ $inputs = "";
 
   addInput('ENC_METHOD', 
   [
-    'placeholder' => ENC_METHOD,
+    'placeholder' => 'aes-256-cbc',
     'description' => 'Encryption Method',
     'attributes'  => 'readonly'
   ]);

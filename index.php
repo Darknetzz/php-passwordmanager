@@ -230,12 +230,11 @@ if ($accounts->num_rows < 1) {
 }
 $iteration = 1;
 while ($account = $accounts->fetch_assoc()) {
+  $checked = null;
   if ($account['2fa'] == 1) {
     $checked = "checked";
-  } else {
-    $checked = null;
   }
-  $iv = '';
+  $iv = null;
   if (!empty($account['iv'])) {
     $iv = hex2bin($account['iv']);
   }

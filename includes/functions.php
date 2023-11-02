@@ -2,17 +2,18 @@
 
 function genIV() {
     $len   = openssl_cipher_iv_length(ENC_METHOD);
-    $binlen = ($len/2);
-    $bytes = openssl_random_pseudo_bytes($binlen);
+    $bytes = openssl_random_pseudo_bytes($len);
     return bin2hex($bytes);
 }
 
 function encrypt($s, $p, $iv = "") {
+    $iv = (!empty($iv) ? hex2bin($iv) : '');
     $encrypted = openssl_encrypt($s, ENC_METHOD, $p, iv: $iv);
     return $encrypted;
 }
 
 function decrypt($s, $p, $iv = "") {
+    $iv = (!empty($iv) ? hex2bin($iv) : '');
     $decrypted = openssl_decrypt($s, ENC_METHOD, $p, iv: $iv);
     return $decrypted;
 }
