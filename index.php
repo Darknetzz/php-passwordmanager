@@ -240,12 +240,11 @@ while ($account = $accounts->fetch_assoc()) {
     $iv = hex2bin($account['iv']);
   }
   # EDIT ENTRY
+  $salt = null;
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
-    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, $iv);
-  } else {
-    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, $iv);
   }
+  $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, $iv);
   echo '
   <!-- Modal -->
   <div class="modal fade" id="editEntryModal'.$account['id'].'" tabindex="-1" role="dialog" aria-labelledby="editEntryModal'.$account['id'].'" aria-hidden="true">

@@ -2,7 +2,8 @@
 
 function genIV() {
     $len   = openssl_cipher_iv_length(ENC_METHOD);
-    $bytes = openssl_random_pseudo_bytes($len);
+    $binlen = ($len/2);
+    $bytes = openssl_random_pseudo_bytes($binlen);
     return bin2hex($bytes);
 }
 
