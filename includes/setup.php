@@ -368,7 +368,7 @@ define("SALT", "'.$setup['SALT'].'");
 define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
 
 # The encryption method to use
-define("ENC_METHOD", "'.$setup['aes-256-cbc'].'");
+define("ENC_METHOD", "aes-256-cbc");
 
 if (!in_array(ENC_METHOD, openssl_get_cipher_methods())) {
     die("Invalid cipher method ".ENC_METHOD);
