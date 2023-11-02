@@ -235,12 +235,16 @@ while ($account = $accounts->fetch_assoc()) {
   } else {
     $checked = null;
   }
+  $iv = '';
+  if (!empty($account['iv'])) {
+    $iv = hex2bin($account['iv']);
+  }
   # EDIT ENTRY
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
-    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, hex2bin($account['iv']));
+    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, $iv);
   } else {
-    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, hex2bin($account['iv']));
+    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, $iv);
   }
   echo '
   <!-- Modal -->
