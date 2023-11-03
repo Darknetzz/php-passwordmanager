@@ -342,7 +342,7 @@ while ($account = $accounts->fetch_assoc()) {
     </div>
   ';
         if ($iteration == 1) {         
-          echo "<table class='table table-hover' style='table-layout:fixed;'>
+          echo "<table class='table table-hover table-dark' style='table-layout:fixed;'>
           <tr><th>Name</th><th>Username</th><th>Password</th><th>URL</th><th>Description</th><th>2FA</th></tr>";
         }
     $id = 0;

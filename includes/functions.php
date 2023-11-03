@@ -4,8 +4,12 @@ function icon(string $icon, int $rem = 2, string $color = 'cornflowerblue') {
     return '<i class="bi bi-'.$icon.'" style="font-size: '.$rem.'rem; color: '.$color.';"></i>';
 }
 
-function genIV() {
-    $len   = openssl_cipher_iv_length(ENC_METHOD);
+function cipherLen(string $method = ENC_METHOD) {
+    return openssl_cipher_iv_length($method);
+}
+
+function genIV($method = ENC_METHOD) {
+    $len   = cipherLen($method);
     $bytes = openssl_random_pseudo_bytes($len);
     return bin2hex($bytes);
 }
