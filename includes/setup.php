@@ -13,9 +13,17 @@ if (strpos($_SERVER['SCRIPT_NAME'], "index.php") === false) {
   die(alert("You must run the setup from index.php, not ".$_SERVER['SCRIPT_NAME']));
 }
 
+# Confirm delete
+if ($_GET['reset'] == 1) {
+  unlink(CONFIG_FILE);
+  echo alert("Configuration file deleted.", "success");
+}
+
 # Check presence of configuration file
 if (file_exists(CONFIG_FILE) && !empty(file_get_contents(CONFIG_FILE))) {
-  die(alert("The config file ".CONFIG_FILE." already exists and is not empty. Please modify it directly or delete it to continue setup."));
+  echo alert("The config file ".CONFIG_FILE." already exists and is not empty. If you proceed the file will be deleted!", "danger");
+  echo "<a href='?reset=1' class='btn btn-danger'>I understand, delete the current configuration.</a>";
+  die();
 }
 
 # Touch the file
@@ -151,13 +159,13 @@ $inputs = "";
 /*                                 Config card                                */
 /* ────────────────────────────────────────────────────────────────────────── */
 $configCard = '
-<div class="card">
+<div class="card bg-dark">
 <h3 class="card-header">Configuration</h3>
 <div class="card-body">
-<span class="text-muted">Please specify your configuration here, or alternatively change the <code>config_example.php</code> to your likings and rename it to <code>config.php</code>.</span><br>
+'.alert('Please specify your configuration here, or alternatively change the <code>config_example.php</code> to your likings and rename it to <code>config.php</code>.').'
 <hr>
 <form action="" method="POST">
-<table class="table table-default">
+<table class="table table-default table-dark">
 '.$inputs.'
 </table>
 <button class="btn btn-success">Save</button>
