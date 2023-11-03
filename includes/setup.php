@@ -1,5 +1,9 @@
+<?php require_once("includes/bootstrap.php"); ?>
+<body>
 <div class="container" style="margin-top:10px;">
 <?php
+
+
 $status = 0;
 $error  = [];
 $info   = [];
@@ -131,7 +135,15 @@ $inputs = "";
   [
     'class'       => 'form-control form-control-color',
     'description' => "Background Color",
-    'value'       => '#444444',
+    'value'       => $bgcolor,
+    'type'        => 'color',
+  ]);
+
+  addInput('COLOR', 
+  [
+    'class'       => 'form-control form-control-color',
+    'description' => "Font Color",
+    'value'       => $color,
     'type'        => 'color',
   ]);
 
@@ -387,7 +399,8 @@ $sqlcon = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                                    Other                                   */
 /* ────────────────────────────────────────────────────────────────────────── */
-define("BACKGROUND_COLOR", "#111");
+define("BACKGROUND_COLOR", "'.$setup['BACKGROUND_COLOR'].'");
+define("COLOR", "'.$setup['COLOR'].'");
 ?>
       ';
 
@@ -435,3 +448,4 @@ echo $configCard;
 
 ?>
 </div>
+</body>

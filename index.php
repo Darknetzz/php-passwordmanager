@@ -5,9 +5,9 @@ error_reporting(E_ALL);
 define("CONFIG_FILE", "includes/config.php");
 define("SETUP_FILE", "includes/setup.php");
 define("FUNCTIONS_FILE", "includes/functions.php");
+define("BOOTSTRAP_FILE", 'includes/bootstrap.php');
 define("MASTER_PASSWORD_MINLEN", 8);
 
-require_once("includes/bootstrap.php");
 require_once(FUNCTIONS_FILE);
 ?>
 
@@ -28,6 +28,7 @@ try {
   /*                          All good, config exists!                          */
   /* ────────────────────────────────────────────────────────────────────────── */
   require_once(CONFIG_FILE);
+  require_once(BOOTSTRAP_FILE);
   
   $title = "PHP Password Manager";
   if (defined("SITE_TITLE")) {
@@ -45,7 +46,7 @@ try {
   if (!defined("BACKGROUND_COLOR")) {
     define("BACKGROUND_COLOR", "#111");
   }
-  echo "<body style='background-color:".BACKGROUND_COLOR.";'>";
+  echo "<body>";
 ?>
 <div class="container-fluid" style="padding-top:10px;">
 <?php
@@ -219,9 +220,16 @@ $accounts = mysqli_query($sqlcon, $accounts);
 </div>
 
 <?php
-echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
-echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
-echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
+// echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
+// echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
+// echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
+echo "<div class='btn-group'>";
+echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')."</a> ";
+echo "<a class='btn btn-primary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')."</a> ";
+echo "<a class='btn btn-success' href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'>".icon('plus-circle-fill', color: 'white')."</a> ";
+echo "<a class='btn btn-danger' href='?lock=1'>".icon('lock-fill', color: 'white')."</a> ";
+echo "</div>";
+
 echo "<hr>";
 echo "<div id='errors'></div>"; # for outputting errors from javascript
 
@@ -333,12 +341,7 @@ while ($account = $accounts->fetch_assoc()) {
       </div>
     </div>
   ';
-        if ($iteration == 1) {
-          // echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
-          // echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
-          // echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
-
-          
+        if ($iteration == 1) {         
           echo "<table class='table table-hover' style='table-layout:fixed;'>
           <tr><th>Name</th><th>Username</th><th>Password</th><th>URL</th><th>Description</th><th>2FA</th></tr>";
         }
@@ -348,7 +351,10 @@ while ($account = $accounts->fetch_assoc()) {
     echo "<td>";
     if ($i == 3) {
         # URL Field
-        echo "<img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'><a href='$account[url]' target='_blank'>$account[url]</a></span>";
+        
+        echo "
+        <a href='javascript:void(0);' onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a>
+        <span id='$account[id]$i$id'><a href='$account[url]' target='_blank'>$account[url]</a></span>";
     } elseif ($i == 2) {
         # Password field
         echo "
@@ -398,3 +404,4 @@ echo "</table>";
     </div>
   </div>
 </div>
+</body>

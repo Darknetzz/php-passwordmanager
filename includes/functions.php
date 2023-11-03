@@ -1,5 +1,9 @@
 <?php
 
+function icon(string $icon, int $rem = 2, string $color = 'cornflowerblue') {
+    return '<i class="bi bi-'.$icon.'" style="font-size: '.$rem.'rem; color: '.$color.';"></i>';
+}
+
 function genIV() {
     $len   = openssl_cipher_iv_length(ENC_METHOD);
     $bytes = openssl_random_pseudo_bytes($len);

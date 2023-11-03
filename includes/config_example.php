@@ -44,4 +44,5 @@ $sqlcon = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
 /*                                    Other                                   */
 /* ────────────────────────────────────────────────────────────────────────── */
 define("BACKGROUND_COLOR", "#111");
+define("COLOR", "#fff");
 ?>
