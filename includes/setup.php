@@ -14,7 +14,7 @@ if (strpos($_SERVER['SCRIPT_NAME'], "index.php") === false) {
 }
 
 # Confirm delete
-if ($_GET['reset'] == 1) {
+if (!empty($_GET['reset']) && $_GET['reset'] == 1) {
   unlink(CONFIG_FILE);
   echo alert("Configuration file deleted.", "success");
 }
