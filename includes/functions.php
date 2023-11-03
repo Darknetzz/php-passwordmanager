@@ -1,6 +1,6 @@
 <?php
 
-function icon(string $icon, int $rem = 2, string $color = 'cornflowerblue') {
+function icon(string $icon, float $rem = 1.5, string $color = 'cornflowerblue') {
     return '<i class="bi bi-'.$icon.'" style="font-size: '.$rem.'rem; color: '.$color.';"></i>';
 }
 

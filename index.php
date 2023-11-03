@@ -48,7 +48,7 @@ try {
   }
   echo "<body>";
 ?>
-<div class="container-fluid" style="padding-top:10px;">
+<div class="container" style="padding-top:10px;">
 <?php
 if (isset($_POST['mpassword'])) {
     $_GET['lock'] = null;
@@ -151,7 +151,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
 <form action="" method="GET">
 <div class="input-group">
 <div class="input-group-prepend">
-  <span class="input-group-text" id="basic-addon1"><img src="img/search.png"></span>
+  <span class="input-group-text" id="basic-addon1"><?= icon("search") ?></span>
 </div>
   <input type="text" name="s" class="form-control" placeholder="Search" autofocus>
 </div>
@@ -220,9 +220,6 @@ $accounts = mysqli_query($sqlcon, $accounts);
 </div>
 
 <?php
-// echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
-// echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
-// echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
 echo "<div class='btn-group'>";
 echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')."</a> ";
 echo "<a class='btn btn-primary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')."</a> ";
@@ -358,8 +355,8 @@ while ($account = $accounts->fetch_assoc()) {
     } elseif ($i == 2) {
         # Password field
         echo "
-        <img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'>
-        <img src='img/eye.png' id='$account[id]$i$id-eye' onClick='reveal(\"$account[id]$i$id\");' style='width:30px;'>
+        <a onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a>
+        <a id='$account[id]$i$id-eye' onClick='reveal(\"$account[id]$i$id\");'>".icon('eye')."</a>
         <span id='$account[id]$i$id' style='display:none;font-size:11px;'>".$decryptedPass."</span>
         <span id='$account[id]$i$id-h' style='font-size:11px;'>****************</span>";
     } elseif ($i == 4) {
@@ -367,20 +364,20 @@ while ($account = $accounts->fetch_assoc()) {
         echo $account["description"];
     } elseif ($i == 0) {
         # Name field, no need for copy
-        echo "<a href='#' data-bs-toggle='modal' data-bs-target='#editEntryModal$account[id]'><img src='img/edit.png' style='width:30px;'></a>
-              <a href='#' data-bs-toggle='modal' data-bs-target='#delEntryModal$account[id]'><img src='img/trash.png' style='width:30px;'></a>
+        echo "<a href='#' data-bs-toggle='modal' data-bs-target='#editEntryModal$account[id]'>".icon('pencil-square')."</a>
+              <a href='#' data-bs-toggle='modal' data-bs-target='#delEntryModal$account[id]'>".icon('trash3-fill', color: 'red')."</a>
               ".$account["name"];
     } elseif ($i == 5) {
         # 2FA Field
         $tfa = $account['2fa'];
         if ($tfa == 0) {
-          echo "<img src='img/x.png' style='width:30px;'>";
+          echo icon("ban", color: 'red');
         } else {
-          echo "<img src='img/check.png' style='width:30px;'>";
+          echo icon("check-lg", color: 'green'); 
         }
     } elseif ($i == 1) {
         # Not password field
-        echo "<img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'>$account[username]</span>";
+        echo "<a onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a> <span id='$account[id]$i$id'>$account[username]</span>";
     }
     echo "</td>";
     }
