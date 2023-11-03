@@ -23,7 +23,7 @@ $color   = (defined('COLOR')            ? COLOR            : "#FFA500");
 ?>
 
 <style>
-    body, .modal-content, .card, h1,h2,h3,h4,h5,h6 {
+    body, .modal-content, .card, h1,h2,h3,h4,h5,h6, .text-muted {
         background-color:<?= $bgcolor ?>;
         color:<?= $color ?>;
     }
