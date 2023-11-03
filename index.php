@@ -97,7 +97,7 @@ if (isset($_POST['edit'])) {
   $username = mysqli_real_escape_string($sqlcon,$_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, $iv);
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -122,7 +122,7 @@ if (isset($_POST['add'])) {
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, $iv);
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);

@@ -15,13 +15,29 @@ function genIV($method = ENC_METHOD) {
 }
 
 function encrypt($s, $p, $iv = "") {
-    $iv = (!empty($iv) ? hex2bin($iv) : '');
+    if (!empty($iv) && ctype_xdigit($iv)) {
+        $iv = hex2bin($iv);
+    }
+
+    $ivlen = strlen($iv);
+    if ($ivlen !== 0 && $ivlen !== cipherLen()) {
+        die("Invalid IV length (".strlen($iv)."). Expected ".cipherLen());
+    }
+
     $encrypted = openssl_encrypt($s, ENC_METHOD, $p, iv: $iv);
     return $encrypted;
 }
 
 function decrypt($s, $p, $iv = "") {
-    $iv = (!empty($iv) ? hex2bin($iv) : '');
+    if (!empty($iv) && ctype_xdigit($iv)) {
+        $iv = hex2bin($iv);
+    }
+
+    $ivlen = strlen($iv);
+    if ($ivlen !== 0 && $ivlen !== cipherLen()) {
+        die("Invalid IV length (".strlen($iv)."). Expected ".cipherLen());
+    }
+
     $decrypted = openssl_decrypt($s, ENC_METHOD, $p, iv: $iv);
     return $decrypted;
 }
