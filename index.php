@@ -5,9 +5,9 @@ error_reporting(E_ALL);
 define("CONFIG_FILE", "includes/config.php");
 define("SETUP_FILE", "includes/setup.php");
 define("FUNCTIONS_FILE", "includes/functions.php");
+define("BOOTSTRAP_FILE", 'includes/bootstrap.php');
 define("MASTER_PASSWORD_MINLEN", 8);
 
-require_once("includes/bootstrap.php");
 require_once(FUNCTIONS_FILE);
 ?>
 
@@ -28,6 +28,7 @@ try {
   /*                          All good, config exists!                          */
   /* ────────────────────────────────────────────────────────────────────────── */
   require_once(CONFIG_FILE);
+  require_once(BOOTSTRAP_FILE);
   
   $title = "PHP Password Manager";
   if (defined("SITE_TITLE")) {
@@ -45,9 +46,9 @@ try {
   if (!defined("BACKGROUND_COLOR")) {
     define("BACKGROUND_COLOR", "#111");
   }
-  echo "<body style='background-color:".BACKGROUND_COLOR.";'>";
+  echo "<body>";
 ?>
-<div class="container-fluid" style="padding-top:10px;">
+<div class="container" style="padding-top:10px;">
 <?php
 if (isset($_POST['mpassword'])) {
     $_GET['lock'] = null;
@@ -96,7 +97,7 @@ if (isset($_POST['edit'])) {
   $username = mysqli_real_escape_string($sqlcon,$_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, $iv);
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -121,7 +122,7 @@ if (isset($_POST['add'])) {
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, $iv);
+  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -150,7 +151,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
 <form action="" method="GET">
 <div class="input-group">
 <div class="input-group-prepend">
-  <span class="input-group-text" id="basic-addon1"><img src="img/search.png"></span>
+  <span class="input-group-text" id="basic-addon1"><?= icon("search") ?></span>
 </div>
   <input type="text" name="s" class="form-control" placeholder="Search" autofocus>
 </div>
@@ -219,9 +220,13 @@ $accounts = mysqli_query($sqlcon, $accounts);
 </div>
 
 <?php
-echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
-echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
-echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
+echo "<div class='btn-group'>";
+echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')."</a> ";
+echo "<a class='btn btn-primary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')."</a> ";
+echo "<a class='btn btn-success' href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'>".icon('plus-circle-fill', color: 'white')."</a> ";
+echo "<a class='btn btn-danger' href='?lock=1'>".icon('lock-fill', color: 'white')."</a> ";
+echo "</div>";
+
 echo "<hr>";
 echo "<div id='errors'></div>"; # for outputting errors from javascript
 
@@ -230,18 +235,20 @@ if ($accounts->num_rows < 1) {
 }
 $iteration = 1;
 while ($account = $accounts->fetch_assoc()) {
+  $checked = null;
   if ($account['2fa'] == 1) {
     $checked = "checked";
-  } else {
-    $checked = null;
+  }
+  $iv = null;
+  if (!empty($account['iv'])) {
+    $iv = hex2bin($account['iv']);
   }
   # EDIT ENTRY
+  $salt = null;
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
-    $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, hex2bin($account['iv']));
-  } else {
-    $decryptedPass = decrypt($account['password'], MASTER_PASSWORD, hex2bin($account['iv']));
   }
+  $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, $iv);
   echo '
   <!-- Modal -->
   <div class="modal fade" id="editEntryModal'.$account['id'].'" tabindex="-1" role="dialog" aria-labelledby="editEntryModal'.$account['id'].'" aria-hidden="true">
@@ -331,13 +338,8 @@ while ($account = $accounts->fetch_assoc()) {
       </div>
     </div>
   ';
-        if ($iteration == 1) {
-          // echo "<a href='index.php'><img src='img/clear.png' style='width:40px;'></a> ";
-          // echo "<a href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'><img src='img/plus.png' style='width:40px;'></a> ";
-          // echo "<a href='?lock=1'><img src='img/lock.png' style='width:40px;'></a>";
-
-          
-          echo "<table class='table table-hover' style='table-layout:fixed;'>
+        if ($iteration == 1) {         
+          echo "<table class='table table-hover table-dark' style='table-layout:fixed;'>
           <tr><th>Name</th><th>Username</th><th>Password</th><th>URL</th><th>Description</th><th>2FA</th></tr>";
         }
     $id = 0;
@@ -346,12 +348,15 @@ while ($account = $accounts->fetch_assoc()) {
     echo "<td>";
     if ($i == 3) {
         # URL Field
-        echo "<img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'><a href='$account[url]' target='_blank'>$account[url]</a></span>";
+        
+        echo "
+        <a href='javascript:void(0);' onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a>
+        <span id='$account[id]$i$id'><a href='$account[url]' target='_blank'>$account[url]</a></span>";
     } elseif ($i == 2) {
         # Password field
         echo "
-        <img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'>
-        <img src='img/eye.png' id='$account[id]$i$id-eye' onClick='reveal(\"$account[id]$i$id\");' style='width:30px;'>
+        <a onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a>
+        <a id='$account[id]$i$id-eye' onClick='reveal(\"$account[id]$i$id\");'>".icon('eye')."</a>
         <span id='$account[id]$i$id' style='display:none;font-size:11px;'>".$decryptedPass."</span>
         <span id='$account[id]$i$id-h' style='font-size:11px;'>****************</span>";
     } elseif ($i == 4) {
@@ -359,20 +364,20 @@ while ($account = $accounts->fetch_assoc()) {
         echo $account["description"];
     } elseif ($i == 0) {
         # Name field, no need for copy
-        echo "<a href='#' data-bs-toggle='modal' data-bs-target='#editEntryModal$account[id]'><img src='img/edit.png' style='width:30px;'></a>
-              <a href='#' data-bs-toggle='modal' data-bs-target='#delEntryModal$account[id]'><img src='img/trash.png' style='width:30px;'></a>
+        echo "<a href='#' data-bs-toggle='modal' data-bs-target='#editEntryModal$account[id]'>".icon('pencil-square')."</a>
+              <a href='#' data-bs-toggle='modal' data-bs-target='#delEntryModal$account[id]'>".icon('trash3-fill', color: 'red')."</a>
               ".$account["name"];
     } elseif ($i == 5) {
         # 2FA Field
         $tfa = $account['2fa'];
         if ($tfa == 0) {
-          echo "<img src='img/x.png' style='width:30px;'>";
+          echo icon("ban", color: 'red');
         } else {
-          echo "<img src='img/check.png' style='width:30px;'>";
+          echo icon("check-lg", color: 'green'); 
         }
     } elseif ($i == 1) {
         # Not password field
-        echo "<img src='img/ctc.png' onClick='copyTC(\"$account[id]$i$id\");' style='width:30px;'> <span id='$account[id]$i$id'>$account[username]</span>";
+        echo "<a onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a> <span id='$account[id]$i$id'>$account[username]</span>";
     }
     echo "</td>";
     }
@@ -396,3 +401,4 @@ echo "</table>";
     </div>
   </div>
 </div>
+</body>

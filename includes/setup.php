@@ -1,5 +1,9 @@
+<?php require_once("includes/bootstrap.php"); ?>
+<body>
 <div class="container" style="margin-top:10px;">
 <?php
+
+
 $status = 0;
 $error  = [];
 $info   = [];
@@ -110,7 +114,7 @@ $inputs = "";
 
   addInput('ENC_METHOD', 
   [
-    'placeholder' => 'AES256-CNC',
+    'placeholder' => 'aes-256-cbc',
     'description' => 'Encryption Method',
     'attributes'  => 'readonly'
   ]);
@@ -131,7 +135,15 @@ $inputs = "";
   [
     'class'       => 'form-control form-control-color',
     'description' => "Background Color",
-    'value'       => '#444444',
+    'value'       => $bgcolor,
+    'type'        => 'color',
+  ]);
+
+  addInput('COLOR', 
+  [
+    'class'       => 'form-control form-control-color',
+    'description' => "Font Color",
+    'value'       => $color,
     'type'        => 'color',
   ]);
 
@@ -368,7 +380,7 @@ define("SALT", "'.$setup['SALT'].'");
 define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
 
 # The encryption method to use
-define("ENC_METHOD", "'.$setup['aes-256-cbc'].'");
+define("ENC_METHOD", "aes-256-cbc");
 
 if (!in_array(ENC_METHOD, openssl_get_cipher_methods())) {
     die("Invalid cipher method ".ENC_METHOD);
@@ -387,7 +399,8 @@ $sqlcon = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                                    Other                                   */
 /* ────────────────────────────────────────────────────────────────────────── */
-define("BACKGROUND_COLOR", "#111");
+define("BACKGROUND_COLOR", "'.$setup['BACKGROUND_COLOR'].'");
+define("COLOR", "'.$setup['COLOR'].'");
 ?>
       ';
 
@@ -435,3 +448,4 @@ echo $configCard;
 
 ?>
 </div>
+</body>

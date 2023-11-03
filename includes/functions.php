@@ -1,17 +1,43 @@
 <?php
 
-function genIV() {
-    $len   = openssl_cipher_iv_length(ENC_METHOD);
+function icon(string $icon, float $rem = 1.5, string $color = 'cornflowerblue') {
+    return '<i class="bi bi-'.$icon.'" style="font-size: '.$rem.'rem; color: '.$color.';"></i>';
+}
+
+function cipherLen(string $method = ENC_METHOD) {
+    return openssl_cipher_iv_length($method);
+}
+
+function genIV($method = ENC_METHOD) {
+    $len   = cipherLen($method);
     $bytes = openssl_random_pseudo_bytes($len);
     return bin2hex($bytes);
 }
 
 function encrypt($s, $p, $iv = "") {
+    if (!empty($iv) && ctype_xdigit($iv)) {
+        $iv = hex2bin($iv);
+    }
+
+    $ivlen = strlen($iv);
+    if ($ivlen !== 0 && $ivlen !== cipherLen()) {
+        die("Invalid IV length (".strlen($iv)."). Expected ".cipherLen());
+    }
+
     $encrypted = openssl_encrypt($s, ENC_METHOD, $p, iv: $iv);
     return $encrypted;
 }
 
 function decrypt($s, $p, $iv = "") {
+    if (!empty($iv) && ctype_xdigit($iv)) {
+        $iv = hex2bin($iv);
+    }
+
+    $ivlen = strlen($iv);
+    if ($ivlen !== 0 && $ivlen !== cipherLen()) {
+        die("Invalid IV length (".strlen($iv)."). Expected ".cipherLen());
+    }
+
     $decrypted = openssl_decrypt($s, ENC_METHOD, $p, iv: $iv);
     return $decrypted;
 }
