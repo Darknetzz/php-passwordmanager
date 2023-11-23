@@ -97,7 +97,7 @@ function setup_info(string $text, $type = "info") {
 
 function alert($txt, $type = 'info', $icon = '') {
     if ($type == 'info') {
-        $icon = 'ℹ️';
+        $icon = '';
     }
     if ($type == 'danger') {
         $icon = '❌';
@@ -112,6 +112,18 @@ function alert($txt, $type = 'info', $icon = '') {
     $txt = $icon.' '.$txt;
 
     return '
-    <div class="alert alert-'.$type.'">'.$txt.'</div>
+    <div class="container">
+        <div class="alert alert-'.$type.'">'.$txt.'</div>
+    </div>
     ';
 }
+
+function isSecure() {
+    if (defined("IGNORE_SSL_WARNING")) {
+        return True;
+    }
+
+    return
+      (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+      || $_SERVER['SERVER_PORT'] == 443;
+  }
