@@ -96,17 +96,17 @@ function setup_info(string $text, $type = "info") {
 }
 
 function alert($txt, $type = 'info', $icon = '') {
-    if ($type == 'info') {
-        $icon = '';
+    if ($type == 'success') {
+        $icon = icon("check-circle", color: "green");
     }
-    if ($type == 'danger') {
-        $icon = '❌';
+    if ($type == 'info') {
+        $icon = icon("info-circle-fill", color: "blue");
     }
     if ($type == 'warning') {
-        $icon = '⚠️';
+        $icon = icon("exclamation-circle-fill", color: "orange");
     }
-    if ($type == 'success') {
-        $icon = '✅';
+    if ($type == 'danger') {
+        $icon = icon("exclamation-triangle-fill", color: "red");
     }
 
     $txt = $icon.' '.$txt;

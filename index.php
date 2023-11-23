@@ -26,7 +26,7 @@ if (isSecure() !== True) {
     <li>You will be able to use the copy to clipboard function</li>
   </ul>
   <i>To ignore this warning, set <code>IGNORE_SSL_WARNING</code> in your <b>config.php</b> file to <code>True</code></i>
-    ", "warning");
+    ", "danger");
 }
 
 try {
