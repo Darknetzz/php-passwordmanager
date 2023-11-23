@@ -97,7 +97,7 @@ function setup_info(string $text, $type = "info") {
 
 function alert($txt, $type = 'info', $icon = '') {
     if ($type == 'info') {
-        $icon = 'ℹ️';
+        $icon = '';
     }
     if ($type == 'danger') {
         $icon = '❌';
