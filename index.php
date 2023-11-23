@@ -12,6 +12,23 @@ require_once(FUNCTIONS_FILE);
 ?>
 
 <?php
+
+/* ───────────────────────────────────────────────────────────────────── */
+/*                         Warn user about HTTPS                         */
+/* ───────────────────────────────────────────────────────────────────── */
+if (isSecure() !== True) {
+  echo alert("
+  Warning
+  <hr>
+  It is highly recommended you switch to using HTTPS for two main reasons:
+  <ul>
+    <li>When using HTTPS, your traffic is encrypted and can't be monitored on local networks</li>
+    <li>You will be able to use the copy to clipboard function</li>
+  </ul>
+  <i>To ignore this warning, set <code>IGNORE_SSL_WARNING</code> in your <b>config.php</b> file to <code>True</code></i>
+    ", "warning");
+}
+
 try {
   /* ────────────────────────────────────────────────────────────────────────── */
   /*            Verify that config exists, if not, require setup.php            */
