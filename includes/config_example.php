@@ -18,6 +18,10 @@
 # Optional appended salt
 define("SALT", "CHANGEME");
 
+# To support older versions of php-passwordmanager, this is set to True by default (and should always be true).
+define("USE_IV", True);
+
+
 # Your master password in SHA512 format
 # Generate a hash using the salt above and your password
 # https://roste.org/rand/#hash
