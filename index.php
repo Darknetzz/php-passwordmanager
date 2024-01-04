@@ -47,10 +47,10 @@ try {
   require_once(CONFIG_FILE);
   require_once(BOOTSTRAP_FILE);
   
-  $title = "PHP Password Manager";
-  if (defined("SITE_TITLE")) {
-    $title = SITE_TITLE;
+  if (!defined("SITE_TITLE")) {
+    define("SITE_TITLE", "PHP Password Manager");
   }
+  $title = SITE_TITLE;
   
   echo "<title>$title</title>";
 } catch (Throwable $t) {
