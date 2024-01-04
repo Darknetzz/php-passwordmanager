@@ -1,19 +1,31 @@
 <?php
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                  icon                                 */
+/* ───────────────────────────────────────────────────────────────────── */
 function icon(string $icon, float $rem = 1.5, string $color = 'cornflowerblue') {
     return '<i class="bi bi-'.$icon.'" style="font-size: '.$rem.'rem; color: '.$color.';"></i>';
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                               cipherLen                               */
+/* ───────────────────────────────────────────────────────────────────── */
 function cipherLen(string $method = ENC_METHOD) {
     return openssl_cipher_iv_length($method);
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                 genIV                                 */
+/* ───────────────────────────────────────────────────────────────────── */
 function genIV($method = ENC_METHOD) {
     $len   = cipherLen($method);
     $bytes = openssl_random_pseudo_bytes($len);
     return bin2hex($bytes);
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                encrypt                                */
+/* ───────────────────────────────────────────────────────────────────── */
 function encrypt($s, $p, $iv = "") {
     if (USE_IV !== True) {
         $iv = "";
@@ -28,9 +40,19 @@ function encrypt($s, $p, $iv = "") {
     }
 
     $encrypted = openssl_encrypt($s, ENC_METHOD, $p, iv: $iv);
+
+    if (empty($encrypted) && !empty($s)) {
+        die(alert("
+            Function encrypt failed to encrypt non-empty password (empty response).<br>
+            Using key $p - IV $iv - String: $s", "danger"));
+    }
+
     return $encrypted;
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                decrypt                                */
+/* ───────────────────────────────────────────────────────────────────── */
 function decrypt($s, $p, $iv = "") {
     if (USE_IV !== True) {
         $iv = "";
@@ -44,10 +66,19 @@ function decrypt($s, $p, $iv = "") {
     }
 
     $decrypted = openssl_decrypt($s, ENC_METHOD, $p, iv: $iv);
+
+    if (empty($decrypted) && !empty($s)) {
+        die(alert("
+            Failed to decrypt non-empty password. Wrong password?<br>
+            Using key $p - IV $iv - String: $s", "danger"));
+    }
+
     return $decrypted;
 }
 
-# passGen(15, "lud")
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                passGen                                */
+/* ───────────────────────────────────────────────────────────────────── */
 function passGen($l = 15, $t = 'lud') {
     try {
         $lc = strpos($t, "l");
@@ -82,6 +113,9 @@ function passGen($l = 15, $t = 'lud') {
     }
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                              setup_error                              */
+/* ───────────────────────────────────────────────────────────────────── */
 function setup_error(string $text, int $setstatuscode = 0) {
     global $status;
     global $error;
@@ -94,12 +128,18 @@ function setup_error(string $text, int $setstatuscode = 0) {
     return $error;
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                               setup_info                              */
+/* ───────────────────────────────────────────────────────────────────── */
 function setup_info(string $text, $type = "info") {
     global $info;
     array_push($info, alert($text, $type));
     return $info;
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                 alert                                 */
+/* ───────────────────────────────────────────────────────────────────── */
 function alert($txt, $type = 'info', $icon = '') {
     if ($type == 'success') {
         $icon = icon("check-circle", color: "green");
@@ -123,6 +163,9 @@ function alert($txt, $type = 'info', $icon = '') {
     ';
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                isSecure                               */
+/* ───────────────────────────────────────────────────────────────────── */
 function isSecure() {
     if (defined("IGNORE_SSL_WARNING")) {
         return True;
