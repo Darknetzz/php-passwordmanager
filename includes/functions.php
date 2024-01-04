@@ -27,8 +27,8 @@ function genIV($method = ENC_METHOD) {
 /*                                encrypt                                */
 /* ───────────────────────────────────────────────────────────────────── */
 function encrypt($s, $p, $iv = "") {
-    if (USE_IV !== True) {
-        $iv = "";
+    if (USE_IV !== True || $iv = "") {
+        $iv = null;
     }
     elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
@@ -43,8 +43,11 @@ function encrypt($s, $p, $iv = "") {
 
     if (empty($encrypted) && !empty($s)) {
         die(alert("
-            Function encrypt failed to encrypt non-empty password (empty response).<br>
-            Using key $p - IV $iv - String: $s", "danger"));
+            Failed to encrypt non-empty password (empty response).<br>
+            <b>String:</b> $s<br>
+            <b>Key: (hidden)</p><br>
+            <b>IV:</b> $iv<br>
+        ", "danger"));
     }
 
     return $encrypted;
@@ -54,9 +57,10 @@ function encrypt($s, $p, $iv = "") {
 /*                                decrypt                                */
 /* ───────────────────────────────────────────────────────────────────── */
 function decrypt($s, $p, $iv = "") {
-    if (USE_IV !== True) {
-        $iv = "";
-    } elseif (!empty($iv) && ctype_xdigit($iv)) {
+    if (USE_IV !== True || $iv = "") {
+        $iv = null;
+    }
+    elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
     }
 
@@ -66,11 +70,15 @@ function decrypt($s, $p, $iv = "") {
     }
 
     $decrypted = openssl_decrypt($s, ENC_METHOD, $p, iv: $iv);
+    $iv = (!empty($iv) ? bin2hex($iv) : "(none)");
 
     if (empty($decrypted) && !empty($s)) {
         die(alert("
-            Failed to decrypt non-empty password. Wrong password?<br>
-            Using key $p - IV $iv - String: $s", "danger"));
+            Failed to decrypt non-empty password (empty response).<br>
+            <b>String:</b> $s<br>
+            <b>Key:</b> (hidden)<br>
+            <b>IV:</b> $iv<br>
+        ", "danger"));
     }
 
     return $decrypted;

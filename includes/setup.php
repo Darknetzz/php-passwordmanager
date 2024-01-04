@@ -361,7 +361,8 @@ while ($status == 0) {
         // $iv       = bin2hex($bytes);
       
       # I know this does nothing, but at least the password can't be seen in cleartext
-        $encodedPass = base64_encode($setup['MYSQL_PASSWORD']);
+        $encodedPass          = base64_encode($setup['MYSQL_PASSWORD']);
+        $hashedMasterPassword = hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']);
         $configToWrite = '
 <?php
 # Change this file to match your SQL-connection and add a master password, or configure it from the setup.php.
@@ -385,7 +386,10 @@ define("SALT", "'.$setup['SALT'].'");
 
 # Your master password in SHA512 format
 # This password is set to be CHANGEME, with the above salt.
-define("MASTER_PASSWORD", "'.hash('sha512', $setup['MASTER_PASSWORD'].$setup['SALT']).'");
+define("MASTER_PASSWORD", "'.$hashedMasterPassword.'");
+
+# If you are using a different encryption key than the master password, specify it here
+define("ENCRYPTION_KEY", "'.$hashedMasterPassword.'");
 
 # The encryption method to use
 define("ENC_METHOD", "aes-256-cbc");

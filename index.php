@@ -114,7 +114,7 @@ if (isset($_POST['edit'])) {
   $username = mysqli_real_escape_string($sqlcon,$_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, iv: $iv);
+  $password = encrypt($_POST['password'], $salt.ENCRYPTION_KEY, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -139,7 +139,7 @@ if (isset($_POST['add'])) {
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.MASTER_PASSWORD, iv: $iv);
+  $password = encrypt($_POST['password'], $salt.ENCRYPTION_KEY, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -151,7 +151,6 @@ if (isset($_POST['add'])) {
     echo "<div class='alert alert-danger'>Entry couldn't be added: $sqlcon->error</div>";
   }
 }
-
 
 if (isset($_GET['s'])) {
   $s = mysqli_real_escape_string($sqlcon, $_GET['s']);
@@ -237,11 +236,12 @@ $accounts = mysqli_query($sqlcon, $accounts);
 </div>
 
 <?php
-echo "<div class='btn-group'>";
-echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')."</a> ";
-echo "<a class='btn btn-primary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')."</a> ";
-echo "<a class='btn btn-success' href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'>".icon('plus-circle-fill', color: 'white')."</a> ";
-echo "<a class='btn btn-danger' href='?lock=1'>".icon('lock-fill', color: 'white')."</a> ";
+echo "<div class='btn-group' style='width:100%'>";
+echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')." Home</a> ";
+echo "<a class='btn btn-secondary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')." Settings</a> ";
+echo "<a class='btn btn-success' href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'>".icon('plus-circle-fill', color: 'white')." Add</a> ";
+echo "<a class='btn btn-info' href='export.php' target='_blank'>".icon('file-earmark-arrow-down-fill', color: 'white')." Export to CSV</a> ";
+echo "<a class='btn btn-danger' href='?lock=1'>".icon('lock-fill', color: 'white')." Lock</a> ";
 echo "</div>";
 
 echo "<hr>";
@@ -265,7 +265,7 @@ while ($account = $accounts->fetch_assoc()) {
   if (!empty($account['salt'])) {
     $salt = $account['salt'];
   }
-  $decryptedPass = decrypt($account['password'], $salt.MASTER_PASSWORD, $iv);
+  $decryptedPass = decrypt($account['password'], $salt.ENCRYPTION_KEY, $iv);
   echo '
   <!-- Modal -->
   <div class="modal fade" id="editEntryModal'.$account['id'].'" tabindex="-1" role="dialog" aria-labelledby="editEntryModal'.$account['id'].'" aria-hidden="true">
@@ -360,7 +360,7 @@ while ($account = $accounts->fetch_assoc()) {
           <tr><th>Name</th><th>Username</th><th>Password</th><th>URL</th><th>Description</th><th>2FA</th></tr>";
         }
     $id = 0;
-    echo "<tr>";
+    echo "<tr id='account-$account[id]'>";
     for ($i=0;$i<6;$i++) {
     echo "<td>";
     if ($i == 3) {
