@@ -15,7 +15,10 @@ function genIV($method = ENC_METHOD) {
 }
 
 function encrypt($s, $p, $iv = "") {
-    if (!empty($iv) && ctype_xdigit($iv)) {
+    if (USE_IV !== True) {
+        $iv = "";
+    }
+    elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
     }
 
@@ -29,7 +32,9 @@ function encrypt($s, $p, $iv = "") {
 }
 
 function decrypt($s, $p, $iv = "") {
-    if (!empty($iv) && ctype_xdigit($iv)) {
+    if (USE_IV !== True) {
+        $iv = "";
+    } elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
     }
 
@@ -96,17 +101,17 @@ function setup_info(string $text, $type = "info") {
 }
 
 function alert($txt, $type = 'info', $icon = '') {
-    if ($type == 'info') {
-        $icon = '';
+    if ($type == 'success') {
+        $icon = icon("check-circle", color: "green");
     }
-    if ($type == 'danger') {
-        $icon = '❌';
+    if ($type == 'info') {
+        $icon = icon("info-circle-fill", color: "blue");
     }
     if ($type == 'warning') {
-        $icon = '⚠️';
+        $icon = icon("exclamation-circle-fill", color: "orange");
     }
-    if ($type == 'success') {
-        $icon = '✅';
+    if ($type == 'danger') {
+        $icon = icon("exclamation-triangle-fill", color: "red");
     }
 
     $txt = $icon.' '.$txt;
@@ -125,5 +130,6 @@ function isSecure() {
 
     return
       (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-      || $_SERVER['SERVER_PORT'] == 443;
-  }
+      || $_SERVER['SERVER_PORT'] == 443
+      || $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
+}
