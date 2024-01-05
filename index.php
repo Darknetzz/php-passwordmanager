@@ -152,6 +152,10 @@ if (isset($_POST['add'])) {
   }
 }
 
+if (isset($_GET['reencrypt'])) {
+
+}
+
 if (isset($_GET['s'])) {
   $s = mysqli_real_escape_string($sqlcon, $_GET['s']);
   $accounts = "SELECT * FROM accounts WHERE 
@@ -240,6 +244,7 @@ echo "<div class='btn-group' style='width:100%'>";
 echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')." Home</a> ";
 echo "<a class='btn btn-secondary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')." Settings</a> ";
 echo "<a class='btn btn-success' href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'>".icon('plus-circle-fill', color: 'white')." Add</a> ";
+echo "<a class='btn btn-info' href='?reencrypt=1'>".icon('key-fill', color: 'white')." Re-encrypt</a> ";
 echo "<a class='btn btn-info' href='export.php' target='_blank'>".icon('file-earmark-arrow-down-fill', color: 'white')." Export to CSV</a> ";
 echo "<a class='btn btn-danger' href='?lock=1'>".icon('lock-fill', color: 'white')." Lock</a> ";
 echo "</div>";
