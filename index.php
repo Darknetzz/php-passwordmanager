@@ -17,6 +17,7 @@ require_once(FUNCTIONS_FILE);
 /*                         Warn user about HTTPS                         */
 /* ───────────────────────────────────────────────────────────────────── */
 if (isSecure() !== True) {
+  $https_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
   echo alert("
   Warning
   <hr>
@@ -25,6 +26,7 @@ if (isSecure() !== True) {
     <li>When using HTTPS, your traffic is encrypted and can't be monitored on local networks</li>
     <li>You will be able to use the copy to clipboard function</li>
   </ul>
+  <a href='{$https_url}' class='btn btn-success'>Switch to HTTPS</a><br>
   <i>To ignore this warning, set <code>IGNORE_SSL_WARNING</code> in your <b>config.php</b> file to <code>True</code></i>
     ", "danger");
 }
@@ -239,16 +241,38 @@ $accounts = mysqli_query($sqlcon, $accounts);
   </div>
 </div>
 
-<?php
-echo "<div class='btn-group' style='width:100%'>";
-echo "<a class='btn btn-primary' href='index.php'>".icon('house-door-fill', color: 'white')." Home</a> ";
-echo "<a class='btn btn-secondary' href='#' data-bs-toggle='modal' data-bs-target='#settingsModal'>".icon('gear-fill', color: 'white')." Settings</a> ";
-echo "<a class='btn btn-success' href='#' data-bs-toggle='modal' data-bs-target='#addEntryModal'>".icon('plus-circle-fill', color: 'white')." Add</a> ";
-echo "<a class='btn btn-info' href='?reencrypt=1'>".icon('key-fill', color: 'white')." Re-encrypt</a> ";
-echo "<a class='btn btn-info' href='export.php' target='_blank'>".icon('file-earmark-arrow-down-fill', color: 'white')." Export to CSV</a> ";
-echo "<a class='btn btn-danger' href='?lock=1'>".icon('lock-fill', color: 'white')." Lock</a> ";
-echo "</div>";
 
+<!-- ACTION BUTTONS -->
+<div class="row col-md-4 mb-3" style="width:100%;">
+  <div class="col-md-4">
+    <div class="btn-group">
+      <a class="btn btn-primary" href="index.php"><?= icon('house-door-fill', color: "white") ?> Home</a>
+      <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal"><?= icon('gear-fill', color: "white") ?> Settings</a>
+      <a class="btn btn-danger" href="?lock=1"><?= icon('lock-fill', color: "white") ?> Lock</a>
+    </div>
+  </div>
+</div>
+
+<div class="row col-md-4" style="width:100%;">
+  <div class="col-md-4">
+    <div class="btn-group">
+      <a class="btn btn-success" href="#" data-bs-toggle="modal" data-bs-target="#addEntryModal"><?= icon('plus-circle-fill', color: "white") ?> Add</a>
+      <a class="btn btn-info" href="?reencrypt=1"><?= icon('key-fill', color: "white") ?> Re-encrypt</a>
+
+      <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+      <?= icon("file-earmark-arrow-down-fill", color: "white") ?> Export to file
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="export.php?type=csv" target="_blank">CSV</a></li>
+        <li><a class="dropdown-item" href="export.php?type=json" target="_blank">JSON</a></li>
+        <li><a class="dropdown-item" href="export.php?type=sql" target="_blank">SQL</a></li>
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+<?php
 echo "<hr>";
 echo "<div id='errors'></div>"; # for outputting errors from javascript
 
