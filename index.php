@@ -243,7 +243,16 @@ $accounts = mysqli_query($sqlcon, $accounts);
 
 
 <!-- ACTION BUTTONS -->
-<div class="row col-md-4 mb-3" style="width:100%;">
+<?php 
+if (isset($_GET['s']) && !empty($_GET['s'])) {
+  echo '
+  <div class="row col-md-4 mb-3">
+    <a href="index.php" class="btn btn-primary">'.icon('x-circle').' Clear search</a>
+  </div>
+  ';
+}
+?>
+<div class="row col-md-4 mb-3">
   <div class="col-md-4">
     <div class="btn-group">
       <a class="btn btn-primary" href="index.php"><?= icon('house-door-fill', color: "white") ?> Home</a>
@@ -253,13 +262,13 @@ $accounts = mysqli_query($sqlcon, $accounts);
   </div>
 </div>
 
-<div class="row col-md-4" style="width:100%;">
+<div class="row col-md-4">
   <div class="col-md-4">
     <div class="btn-group">
       <a class="btn btn-success" href="#" data-bs-toggle="modal" data-bs-target="#addEntryModal"><?= icon('plus-circle-fill', color: "white") ?> Add</a>
-      <a class="btn btn-info" href="?reencrypt=1"><?= icon('key-fill', color: "white") ?> Re-encrypt</a>
+      <a class="btn btn-warning" href="?reencrypt=1"><?= icon('key-fill', color: "white") ?> Re-encrypt</a>
 
-      <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
       <?= icon("file-earmark-arrow-down-fill", color: "white") ?> Export to file
       </button>
       <ul class="dropdown-menu">
@@ -267,7 +276,6 @@ $accounts = mysqli_query($sqlcon, $accounts);
         <li><a class="dropdown-item" href="export.php?type=json" target="_blank">JSON</a></li>
         <li><a class="dropdown-item" href="export.php?type=sql" target="_blank">SQL</a></li>
       </ul>
-
     </div>
   </div>
 </div>
