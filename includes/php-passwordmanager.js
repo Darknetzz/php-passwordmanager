@@ -54,8 +54,9 @@ $(document).ready(function() {
     
     $(".genPass").on("click", function(e) {
         e.preventDefault();
-        if ($(this).data('output') !== undefined) {
-          var outputTarget = $(this).data('output');
+        var data_output = $(this).data('output');
+        if (data_output !== undefined) {
+          var outputTarget = $(this).parent().find(data_output);
         } else {
           var outputTarget = $(this);
         }

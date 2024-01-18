@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 session_start();
 error_reporting(E_ALL);
@@ -178,7 +179,11 @@ $accounts = mysqli_query($sqlcon, $accounts);
   <input type="text" name="s" class="form-control" placeholder="Search" autofocus>
 </div>
 </form>
-<!-- Modal -->
+<!-- 
+  --------------------
+  ADD NEW ENTRY MODAL
+  --------------------
+ -->
 <div class="modal fade" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModal" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -208,7 +213,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
           <span class="input-group-text" id="basic-addon1">Password</span>
         </div>
           <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="">
-          <a href="javascript:void(0);" class="genPass btn btn-primary" data-output="#password">Generate</a>
+          <a href="javascript:void(0);" class="genPass btn btn-primary" data-output=".password">Generate</a>
         </div>
         <div class="input-group mb-3">
         <div class="input-group-prepend">
@@ -334,8 +339,8 @@ while ($account = $accounts->fetch_assoc()) {
           <div class="input-group-prepend">
             <span class="input-group-text">Password</span>
           </div>
-            <input type="password" name="password" class="form-control" placeholder="Password" value="'.$decryptedPass.'">
-
+            <input type="password" name="password" class="form-control password" placeholder="Password" value="'.$decryptedPass.'">
+            <a href="javascript:void(0);" class="genPass btn btn-primary" data-output=".password">Generate</a>
           </div>
           <div class="input-group mb-3">
           <div class="input-group-prepend">
@@ -393,7 +398,7 @@ while ($account = $accounts->fetch_assoc()) {
     </div>
   ';
         if ($iteration == 1) {         
-          echo "<table class='table table-hover table-dark' style='table-layout:fixed;'>
+          echo "<table class='table table-hover table-dark' style='table-layout:fixed; word-break: break-word;'>
           <tr><th>Name</th><th>Username</th><th>Password</th><th>URL</th><th>Description</th><th>2FA</th></tr>";
         }
     $id = 0;
