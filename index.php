@@ -225,8 +225,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
         <div class="input-group-prepend">
           <span class="input-group-text" id="basic-addon1">Description</span>
         </div>
-          <textarea class="form-control" name="desc" placeholder="Description">
-          </textarea>
+          <textarea class="form-control" name="desc" placeholder="Description"></textarea>
         </div>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
@@ -353,9 +352,7 @@ while ($account = $accounts->fetch_assoc()) {
           <div class="input-group-prepend">
             <span class="input-group-text">Description</span>
           </div>
-            <textarea name="desc" class="form-control" placeholder="Description">
-             '.$account['description'].'
-            </textarea>
+            <textarea name="desc" class="form-control" placeholder="Description">'.$account['description'].'</textarea>
           </div>
           <div class="input-group mb-3">
           <div class="input-group-prepend">
