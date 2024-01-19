@@ -251,7 +251,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
 <?php 
 if (isset($_GET['s']) && !empty($_GET['s'])) {
   echo '
-  <div class="row col-md-4 mb-3">
+  <div class="row col-md-4 my-3">
     <a href="index.php" class="btn btn-primary">'.icon('x-circle').' Clear search</a>
   </div>
   ';
