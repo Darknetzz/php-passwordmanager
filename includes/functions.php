@@ -28,13 +28,13 @@ function genIV($method = ENC_METHOD) {
 /* ───────────────────────────────────────────────────────────────────── */
 function encrypt($s, $p, $iv = "") {
     if (USE_IV !== True || $iv = "") {
-        $iv = null;
-        $ivlen = 0;
+        $iv = hex2bin(str_repeat("0", cipherLen()));
     }
     elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
-        $ivlen = strlen($iv);
     }
+
+    $ivlen = strlen($iv);
 
     if ($ivlen !== 0 && $ivlen !== cipherLen()) {
         die("Invalid IV length (".strlen($iv)."). Expected ".cipherLen());
@@ -59,13 +59,13 @@ function encrypt($s, $p, $iv = "") {
 /* ───────────────────────────────────────────────────────────────────── */
 function decrypt($s, $p, $iv = "") {
     if (USE_IV !== True || $iv = "") {
-        $iv = null;
-        $ivlen = 0;
+        $iv = hex2bin(str_repeat("0", cipherLen()));
     }
     elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
-        $ivlen = strlen($iv);
     }
+
+    $ivlen = strlen($iv);
 
     if ($ivlen !== 0 && $ivlen !== cipherLen()) {
         die("Invalid IV length (".strlen($iv)."). Expected ".cipherLen());

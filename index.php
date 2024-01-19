@@ -172,7 +172,7 @@ if (isset($_GET['s'])) {
 $accounts = mysqli_query($sqlcon, $accounts);
 ?>
 <form action="" method="GET">
-<div class="input-group">
+<div class="input-group mb-3">
 <div class="input-group-prepend">
   <span class="input-group-text" id="basic-addon1"><?= icon("search") ?></span>
 </div>
@@ -259,7 +259,7 @@ if (isset($_GET['s']) && !empty($_GET['s'])) {
 }
 ?>
 <div class="row col-md-4 mb-3">
-  <div class="col-md-4">
+  <div class="col">
     <div class="btn-group">
       <a class="btn btn-primary" href="index.php"><?= icon('house-door-fill', color: "white") ?> Home</a>
       <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal"><?= icon('gear-fill', color: "white") ?> Settings</a>
@@ -269,7 +269,7 @@ if (isset($_GET['s']) && !empty($_GET['s'])) {
 </div>
 
 <div class="row col-md-4">
-  <div class="col-md-4">
+  <div class="col">
     <div class="btn-group">
       <a class="btn btn-success" href="#" data-bs-toggle="modal" data-bs-target="#addEntryModal"><?= icon('plus-circle-fill', color: "white") ?> Add</a>
       <a class="btn btn-warning" href="?reencrypt=1"><?= icon('key-fill', color: "white") ?> Re-encrypt</a>
