@@ -119,6 +119,9 @@ if (!isset($_SESSION['password'])) {
     die($pwInput);
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                 DELETE                                */
+/* ───────────────────────────────────────────────────────────────────── */
 if (isset($_POST['del'])) {
   $id = mysqli_real_escape_string($sqlcon, $_POST['id']);
   $delete = "DELETE FROM accounts WHERE id = '$id'";
@@ -130,6 +133,9 @@ if (isset($_POST['del'])) {
   }
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                  EDIT                                 */
+/* ───────────────────────────────────────────────────────────────────── */
 if (isset($_POST['edit'])) {
   $id = mysqli_real_escape_string($sqlcon,$_POST['id']);
   $name = mysqli_real_escape_string($sqlcon,$_POST['name']);
@@ -156,6 +162,9 @@ if (isset($_POST['edit'])) {
 }
 }
 
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                  ADD                                  */
+/* ───────────────────────────────────────────────────────────────────── */
 if (isset($_POST['add'])) {
   $name = mysqli_real_escape_string($sqlcon, $_POST['name']);
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
