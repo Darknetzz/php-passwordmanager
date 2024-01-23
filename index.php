@@ -299,7 +299,7 @@ if (isset($_GET['s']) && !empty($_GET['s'])) {
   <div class="col">
     <div class="btn-group">
       <a class="btn btn-success" href="#" data-bs-toggle="modal" data-bs-target="#addEntryModal"><?= icon('plus-circle-fill', color: "white") ?> Add</a>
-      <a class="btn btn-warning" href="?reencrypt=1"><?= icon('key-fill', color: "white") ?> Re-encrypt</a>
+      <a class="btn btn-warning disabled" href="?reencrypt=1"><?= icon('key-fill', color: "white") ?> Re-encrypt</a>
 
       <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
       <?= icon("file-earmark-arrow-down-fill", color: "white") ?> Export to file
