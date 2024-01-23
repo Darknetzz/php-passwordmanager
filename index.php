@@ -18,17 +18,36 @@ require_once(FUNCTIONS_FILE);
 /*                         Warn user about HTTPS                         */
 /* ───────────────────────────────────────────────────────────────────── */
 if (isSecure() !== True) {
-  $https_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+  foreach ($_SERVER as $var => $val) {
+    if (is_array($val)) {
+      $val = json_encode($val, JSON_PRETTY_PRINT);
+    }
+    $server_vars[] = "<b>$var:</b> $val";
+  }
+
+  $https_url    = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
   echo alert("
   Warning
   <hr>
+  It seems you are currently not using HTTPS.<br>
   It is highly recommended you switch to using HTTPS for two main reasons:
   <ul>
     <li>When using HTTPS, your traffic is encrypted and can't be monitored on local networks</li>
     <li>You will be able to use the copy to clipboard function</li>
   </ul>
-  <a href='{$https_url}' class='btn btn-success'>Switch to HTTPS</a><br>
   <i>To ignore this warning, set <code>IGNORE_SSL_WARNING</code> in your <b>config.php</b> file to <code>True</code></i>
+  <hr>
+  <a href='{$https_url}' class='btn btn-success'>Switch to HTTPS</a>
+  <button type='button' class='btn btn-warning' data-bs-toggle='collapse' data-bs-target='#debug' aria-label='Close'>Debug info</button>
+  <button type='button' class='btn btn-danger' data-bs-dismiss='alert' aria-label='Close'>Dismiss</button>
+  <div class='collapse my-2' id='debug'>
+    <div class='card card-body bg-dark text-white'>
+    <h5>Debug info</h5>
+    <hr>
+    ".implode("<br>", $server_vars)."
+    </div>
+  </div>
     ", "danger");
 }
 
