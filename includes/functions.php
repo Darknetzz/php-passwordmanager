@@ -28,7 +28,7 @@ function genIV($method = ENC_METHOD) {
 /* ───────────────────────────────────────────────────────────────────── */
 function encrypt($s, $p, $iv = "") {
     if (USE_IV !== True || empty($iv)) {
-        $iv = hex2bin(str_repeat("0", cipherLen()));
+        $iv = hex2bin(str_repeat("00", cipherLen()));
     }
     elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
@@ -59,7 +59,7 @@ function encrypt($s, $p, $iv = "") {
 /* ───────────────────────────────────────────────────────────────────── */
 function decrypt($s, $p, $iv = "") {
     if (USE_IV !== True || empty($iv)) {
-        $iv = hex2bin(str_repeat("0", cipherLen()));
+        $iv = hex2bin(str_repeat("00", cipherLen()));
     }
     elseif (!empty($iv) && ctype_xdigit($iv)) {
         $iv = hex2bin($iv);
