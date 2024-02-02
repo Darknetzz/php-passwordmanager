@@ -195,5 +195,8 @@ function isSecure() {
     if (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
         return True;
     }
+    if (!empty($_SERVER['HTTP_X_FORWARDED_SCHEME']) && $_SERVER['HTTP_X_FORWARDED_SCHEME'] == 'https') {
+        return True;
+    }
     return False;
 }
