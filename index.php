@@ -154,12 +154,13 @@ if (isset($_POST['edit'])) {
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
+  $tfa_id = mysqli_real_escape_string($sqlcon, $_POST['2fa_id']);
   # check if entry exists
   $exists = "SELECT * FROM accounts WHERE `id` = '$id'";
   $exists = mysqli_query($sqlcon, $exists);
   if ($exists->num_rows > 0) {
-  $stmt = $sqlcon->prepare("UPDATE accounts SET `name` = ?, `username` = ?, `password` = ?, `salt` = ?, `iv` = ?, `url` = ?, `description` = ?, `2fa` = ? WHERE id = ?");
-  $stmt->bind_param("ssssssssi", $name, $username, $password, $salt, $iv, $url, $desc, $tfa, $id);
+  $stmt = $sqlcon->prepare("UPDATE accounts SET `name` = ?, `username` = ?, `password` = ?, `salt` = ?, `iv` = ?, `url` = ?, `description` = ?, `2fa` = ?, `2fa_id` = ? WHERE id = ?");
+  $stmt->bind_param("ssssssssis", $name, $username, $password, $salt, $iv, $url, $desc, $tfa, $id, $tfa_id);
   $edit = $stmt->execute();
   $stmt->close();
   if ($edit) {
@@ -184,8 +185,8 @@ if (isset($_POST['add'])) {
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
-  $stmt = $sqlcon->prepare("INSERT INTO accounts (`name`, `username`, `password`, `salt`, `iv`, `description`, `url`, `2fa`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-  $stmt->bind_param("ssssssss", $name, $username, $password, $salt, $iv, $desc, $url, $tfa);
+  $stmt = $sqlcon->prepare("INSERT INTO accounts (`name`, `username`, `password`, `salt`, `iv`, `description`, `url`, `2fa`, `2fa_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt->bind_param("sssssssss", $name, $username, $password, $salt, $iv, $desc, $url, $tfa, $tfa_id);
   $add = $stmt->execute();
   $stmt->close();
   if ($add) {
