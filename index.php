@@ -105,13 +105,7 @@ $pwInput = "Please enter master password:
 </form>";
 
 # TFA Dropdown
-$tfa_dropdown = '
-<div class="input-group mb-3 tfa_dropdown">
-  <span class="input-group-text">2FA Account</span>
-  '.getTFA_dropdown().'
-</div>
-';
-
+$tfa_dropdown = getTFA_dropdown();
 
 # User is attempting to sign in, but password is incorrect
 if (isset($_POST['mpassword'])) {
@@ -132,8 +126,16 @@ if (!isset($_SESSION['password'])) {
 /* ───────────────────────────────────────────────────────────────────── */
 if (isset($_POST['del'])) {
   $id = mysqli_real_escape_string($sqlcon, $_POST['id']);
-  $delete = "DELETE FROM accounts WHERE id = '$id'";
-  $delete = mysqli_query($sqlcon, $delete);
+  $delete = $sqlcon->prepare("DELETE FROM accounts WHERE id = ?");
+  $delete->bind_param("s", $id);
+  $delete->execute();
+
+  if ($delete->affected_rows > 0) {
+    echo "<div class='alert alert-success'>Entry deleted.</div>";
+  } else {
+    echo "<div class='alert alert-danger'>Could not delete entry: " . $sqlcon->error . "</div>";
+  }
+  $delete->close();
   if ($delete) {
     echo "<div class='alert alert-success'>Entry deleted.</div>";
   } else {
@@ -150,7 +152,8 @@ if (isset($_POST['edit'])) {
   $username = mysqli_real_escape_string($sqlcon,$_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.ENCRYPTION_KEY, iv: $iv);
+  $password = (empty($_POST['password'])) ? "[EMPTY]" : $_POST['password'];
+  $password = encrypt($password, $salt.ENCRYPTION_KEY, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon,$_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon,$_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -181,7 +184,8 @@ if (isset($_POST['add'])) {
   $username = mysqli_real_escape_string($sqlcon, $_POST['username']);
   $salt = passGen(32, 'lud');
   $iv = genIV();
-  $password = encrypt($_POST['password'], $salt.ENCRYPTION_KEY, iv: $iv);
+  $password = (empty($_POST['password'])) ? "[EMPTY]" : $_POST['password'];
+  $password = encrypt($password, $salt.ENCRYPTION_KEY, iv: $iv);
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
@@ -288,7 +292,12 @@ $stmt->close();
         </div>
       </div>
 
-      <?php echo $tfa_dropdown; ?>
+      <div class="input-group mb-3 tfa_dropdown">
+        <input type="hidden" name="2fa_id" value="0">
+        <span class="input-group-text">2FA Account</span>
+        <?php echo $tfa_dropdown; ?>
+      </div>
+      
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -424,8 +433,18 @@ while ($account = $accounts->fetch_assoc()) {
             </div>
           </div>
 
-          '.$tfa_dropdown.'
 
+          <div class="input-group mb-3 tfa_dropdown">
+          <input type="hidden" name="2fa_id" value="0">
+          <span class="input-group-text">2FA Account</span>';
+            if (!empty($account['2fa_id'])) {
+              echo getTFA_dropdown(selected: $account['2fa_id']);
+              echo getTFA_otp(id: $account['2fa_id']);
+            } else {
+              echo $tfa_dropdown;
+            }
+            echo '
+            </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

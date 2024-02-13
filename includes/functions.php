@@ -225,7 +225,6 @@ function getTFA_accounts($access_token = TFA_APIKEY, $id = Null) {
 
     if ($httpCode !== 200) {
         // Handle the error or return false
-        echo "<script>console.log('Endpoint $url returned status code $httpCode - Error: $result');</script>";
         return False;
     }
 
@@ -235,23 +234,26 @@ function getTFA_accounts($access_token = TFA_APIKEY, $id = Null) {
 /* ───────────────────────────────────────────────────────────────────── */
 /*                            getTFA_dropdown                            */
 /* ───────────────────────────────────────────────────────────────────── */
-function getTFA_dropdown($access_token = TFA_APIKEY) {
+function getTFA_dropdown($access_token = TFA_APIKEY, $selected = Null) {
     if (!defined("TFA_ENABLED") || TFA_ENABLED !== True) {
         return False;
     }
     $accounts = getTFA_accounts($access_token);
     $dropdown = "
-    <input type='hidden' name='2fa_id' value=''>
     <select name='2fa_id' class='form-select'>
     ";
-    if (empty($accounts)) {
-        $dropdown .= "<option value='' disabled selected>No accounts found</option>";
-    }
-    else {
-        $dropdown .= "<option value='' disabled selected>Select an account</option>";
+
+    $dropdown .= (!empty($selected) ? "<option value='' disabled>Select an account</option>" : "<option value='' selected disabled>Select an account</option>");
+    if (is_array($accounts) && !empty($accounts)) {
         foreach ($accounts as $account) {
-            $dropdown .= "<option value='".$account['id']."'>".$account['service']."</option>";
+            $select = Null;
+            if (!empty($selected) && $selected == $account['id']) {
+                $select = "selected";
+            }
+            $dropdown .= "<option value='".$account['id']."' $select>".$account['service']."</option>";
         }
+    } else {
+        $dropdown .= "<option value='' disabled selected>No accounts found</option>";
     }
     $dropdown .= "</select>";
     return $dropdown;
