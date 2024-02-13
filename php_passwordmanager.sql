@@ -36,6 +36,7 @@ CREATE TABLE `accounts` (
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `description` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `2fa` tinyint(1) NOT NULL DEFAULT '0'
+  `2fa_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
 
 --
