@@ -456,12 +456,16 @@ while ($account = $accounts->fetch_assoc()) {
               ".$account["name"];
     } elseif ($i == 5) {
         # 2FA Field
-        $tfa = $account['2fa'];
-        if ($tfa == 0) {
-          echo icon("ban", color: 'red');
-        } else {
-          echo icon("check-lg", color: 'green'); 
+        $tfa      = $account['2fa'];
+        $tfa_id   = $account['2fa_id'];
+        $tfa_link = icon("dash-circle", color: 'red');
+        if ($tfa > 0) {
+          $tfa_link = icon("check-circle", color: 'green');
         }
+        if (TFA_ENABLED == 1 && $tfa > 0) {
+          $tfa_link = "<a href='tfa.php?id=$account[id]' data-tfaid='".$tfa_id."'>".icon('plus-circle-fill', color: 'green')."</a>";
+        }
+        echo $tfa_link;
     } elseif ($i == 1) {
         # Not password field
         echo "<a onClick='copyTC(\"$account[id]$i$id\");'>".icon('clipboard-fill')."</a> <span id='$account[id]$i$id'>$account[username]</span>";

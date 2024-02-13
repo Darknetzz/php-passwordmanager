@@ -40,7 +40,7 @@ define("IGNORE_SSL_WARNING", False);
 
 # Enables the 2FA feature (requires you to have 2FAuth installed and configured)
 # https://github.com/Bubka/2FAuth
-define("ENABLE_TFA", False);
+define("TFA_ENABLED", False);
 
 # The API key for the 2FAuth plugin
 define("TFA_APIKEY", "CHANGEME");
