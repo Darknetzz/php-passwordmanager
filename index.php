@@ -461,9 +461,9 @@ while ($account = $accounts->fetch_assoc()) {
         $tfa_link = icon("dash-circle", color: 'red');
         if ($tfa > 0) {
           $tfa_link = icon("check-circle", color: 'green');
-        }
-        if (TFA_ENABLED == 1 && $tfa > 0) {
-          $tfa_link = "<a href='tfa.php?id=$account[id]' data-tfaid='".$tfa_id."'>".icon('plus-circle-fill', color: 'green')."</a>";
+          if (TFA_ENABLED == True && !empty($tfa_id)) {
+            $tfa_link = "<a class='tfa_enabled' href='javascript:void(0);' data-tfaid='".$tfa_id."'>".icon('check-circle', color: 'green')."</a>";
+          }
         }
         echo $tfa_link;
     } elseif ($i == 1) {
