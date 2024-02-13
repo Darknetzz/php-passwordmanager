@@ -105,7 +105,13 @@ $pwInput = "Please enter master password:
 </form>";
 
 # TFA Dropdown
-$tfa_dropdown = getTFA_dropdown();
+$tfa_dropdown = '
+<div class="input-group mb-3 tfa_dropdown">
+  <span class="input-group-text">2FA Account</span>
+  '.getTFA_dropdown().'
+</div>
+';
+
 
 # User is attempting to sign in, but password is incorrect
 if (isset($_POST['mpassword'])) {
@@ -152,8 +158,10 @@ if (isset($_POST['edit'])) {
   $exists = "SELECT * FROM accounts WHERE `id` = '$id'";
   $exists = mysqli_query($sqlcon, $exists);
   if ($exists->num_rows > 0) {
-  $edit = "UPDATE accounts SET `name` = '$name', `username` = '$username', `password` = '$password', `salt` = '$salt', `iv` = '$iv', `url` = '$url', `description` = '$desc', `2fa` = '$tfa' WHERE id = '$id'";
-  $edit = mysqli_query($sqlcon, $edit);
+  $stmt = $sqlcon->prepare("UPDATE accounts SET `name` = ?, `username` = ?, `password` = ?, `salt` = ?, `iv` = ?, `url` = ?, `description` = ?, `2fa` = ? WHERE id = ?");
+  $stmt->bind_param("ssssssssi", $name, $username, $password, $salt, $iv, $url, $desc, $tfa, $id);
+  $edit = $stmt->execute();
+  $stmt->close();
   if ($edit) {
     echo "<div class='alert alert-success'>Entry <b>$name</b> updated!</div>";
   } else {
@@ -176,8 +184,10 @@ if (isset($_POST['add'])) {
   $desc = mysqli_real_escape_string($sqlcon, $_POST['desc']);
   $url = mysqli_real_escape_string($sqlcon, $_POST['url']);
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
-  $add = "INSERT INTO accounts (`name`, `username`, `password`, `salt`, `iv`, `description`, `url`, `2fa`) VALUES ('$name', '$username', '$password', '$salt', '$iv', '$desc', '$url', '$tfa')";
-  $add = mysqli_query($sqlcon, $add);
+  $stmt = $sqlcon->prepare("INSERT INTO accounts (`name`, `username`, `password`, `salt`, `iv`, `description`, `url`, `2fa`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt->bind_param("ssssssss", $name, $username, $password, $salt, $iv, $desc, $url, $tfa);
+  $add = $stmt->execute();
+  $stmt->close();
   if ($add) {
     echo "<div class='alert alert-success'>Entry added.</div>";
   } else {
@@ -190,16 +200,21 @@ if (isset($_GET['reencrypt'])) {
 }
 
 if (isset($_GET['s'])) {
-  $s = mysqli_real_escape_string($sqlcon, $_GET['s']);
-  $accounts = "SELECT * FROM accounts WHERE 
-              LOWER(`name`) LIKE LOWER('%$s%') OR
-              LOWER(`username`) LIKE LOWER('%$s%') OR
-              LOWER(`url`) LIKE LOWER('%$s%') OR
-              LOWER(`description`) LIKE LOWER('%$s%') ORDER BY id DESC";
+  $query = "SELECT * FROM accounts WHERE 
+              LOWER(`name`) LIKE LOWER(?) OR
+              LOWER(`username`) LIKE LOWER(?) OR
+              LOWER(`url`) LIKE LOWER(?) OR
+              LOWER(`description`) LIKE LOWER(?) ORDER BY id DESC";
+  $stmt = $sqlcon->prepare($query);
+  $searchTerm = "%$_GET[s]%";
+  $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
 } else {
-  $accounts = "SELECT * FROM accounts ORDER BY id DESC";
+  $query = "SELECT * FROM accounts ORDER BY id DESC";
+  $stmt = $sqlcon->prepare($query);
 }
-$accounts = mysqli_query($sqlcon, $accounts);
+$stmt->execute();
+$accounts = $stmt->get_result();
+$stmt->close();
 ?>
 <form action="" method="GET">
 <div class="input-group mb-3">
@@ -272,12 +287,7 @@ $accounts = mysqli_query($sqlcon, $accounts);
         </div>
       </div>
 
-      <div class="input-group mb-3 tfa_dropdown" style="display:none;">
-            <div class="input-group-prepend">
-              <span class="input-group-text">2FA Account</span>
-            </div>
-            <?php echo $tfa_dropdown; ?>
-      </div>
+      <?php echo $tfa_dropdown; ?>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -413,12 +423,7 @@ while ($account = $accounts->fetch_assoc()) {
             </div>
           </div>
 
-        <div class="input-group mb-3 tfa_dropdown">
-          <div class="input-group">
-            <span class="input-group-text">2FA Account</span>
-            '.$tfa_dropdown.'
-          </div>
-        </div>
+          '.$tfa_dropdown.'
 
         </div>
         <div class="modal-footer">
@@ -459,7 +464,7 @@ while ($account = $accounts->fetch_assoc()) {
           <tr><th>Name</th><th>Username</th><th>Password</th><th>URL</th><th>Description</th><th>2FA</th></tr>";
         }
     $id = 0;
-    echo "<tr id='account-$account[id]'>";
+    echo "<tr id='account-".$account['id']."'>";
     for ($i=0;$i<6;$i++) {
     echo "<td>";
     if ($i == 3) {

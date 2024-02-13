@@ -75,7 +75,7 @@ $(document).ready(function() {
     $(".tfa_switch").on("change", function(e) {
       e.preventDefault();
       var tfa      = $(this).prop("checked"); // Use `prop` instead of `checked` to get the checked state
-      var dropdown = $(this).parent().find(".tfa_dropdown");
+      var dropdown = $(this).closest('.modal-content').find('.tfa_dropdown');
       if (tfa == false) { // Use `false` instead of `"0"` to compare with the boolean value
         dropdown.hide();
       } else {
@@ -88,7 +88,7 @@ $(document).ready(function() {
     $(".tfa_dropdown").hide();
     $(".tfa_switch").each(function() {
       var tfa      = $(this).prop("checked"); // Use `prop` instead of `checked` to get the checked state
-      var dropdown = $(this).parent().find(".tfa_dropdown");
+      var dropdown = $(this).closest('.modal-content').find('.tfa_dropdown');
       if (tfa == false) {
         dropdown.hide();
       } else {

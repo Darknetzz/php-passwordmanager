@@ -208,33 +208,47 @@ function isSecure() {
 /*                                 getTFA_accounts                       */
 /* ───────────────────────────────────────────────────────────────────── */
 function getTFA_accounts($access_token = TFA_APIKEY, $id = Null) {
-    if (!defined("ENABLE_TFA") || ENABLE_TFA !== True) {
+    if (!defined("TFA_ENABLED") || TFA_ENABLED !== True) {
         return False;
     }
-    $url = (empty($id) ? TFA_URL."/api/v1/accounts" : TFA_URL."/api/v1/accounts/$id");
+    $url = (empty($id) ? TFA_URL."/api/v1/twofaccounts" : TFA_URL."/api/v1/twofaccounts/$id");
     $headers = array(
-        "Authorization: Bearer
-        $access_token"
+        "Authorization: Bearer $access_token"
     );
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, True);
     $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE); // Get the HTTP status code
+    $result = json_decode($result, True);
     curl_close($ch);
-    return json_decode($result, True);
+
+    if ($httpCode !== 200) {
+        // Handle the error or return false
+        echo "<script>console.log('Endpoint $url returned status code $httpCode - Error: $result');</script>";
+        return False;
+    }
+
+    return $result;
 }
 
 /* ───────────────────────────────────────────────────────────────────── */
 /*                            getTFA_dropdown                            */
 /* ───────────────────────────────────────────────────────────────────── */
 function getTFA_dropdown($access_token = TFA_APIKEY) {
-    if (!defined("ENABLE_TFA") || ENABLE_TFA !== True) {
+    if (!defined("TFA_ENABLED") || TFA_ENABLED !== True) {
         return False;
     }
     $accounts = getTFA_accounts($access_token);
     $dropdown = "<select name='2fa_id' class='form-select'>";
-    foreach ($accounts as $account) {
-        $dropdown .= "<option value='".$account['id']."'>".$account['name']."</option>";
+    if (empty($accounts)) {
+        $dropdown .= "<option value='' disabled selected>No accounts found</option>";
+    }
+    else {
+        $dropdown .= "<option value='' disabled selected>Select an account</option>";
+        foreach ($accounts as $account) {
+            $dropdown .= "<option value='".$account['id']."'>".$account['service']."</option>";
+        }
     }
     $dropdown .= "</select>";
     return $dropdown;
@@ -244,10 +258,10 @@ function getTFA_dropdown($access_token = TFA_APIKEY) {
 /*                               getTFA_otp                              */
 /* ───────────────────────────────────────────────────────────────────── */
 function getTFA_otp($access_token = TFA_APIKEY, $id = Null) {
-    if (!defined("ENABLE_TFA") || ENABLE_TFA !== True || empty($id)) {
+    if (!defined("TFA_ENABLED") || TFA_ENABLED !== True || empty($id)) {
         return False;
     }
-    if (defined("ENABLE_TFA") && ENABLE_TFA === True) {
+    if (defined("TFA_ENABLED") && TFA_ENABLED === True) {
         $url = TFA_URL."/api/v1/otp/$id";
         $headers = array(
             "Authorization: Bearer
