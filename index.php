@@ -494,7 +494,7 @@ while ($account = $accounts->fetch_assoc()) {
         $tfa      = $account['2fa'];
         $tfa_id   = $account['2fa_id'];
         $tfa_link = icon("dash-circle", color: 'red');
-        if ($tfa > 0) {
+        if ($tfa != "0") {
           $tfa_link = icon("check-circle", color: 'green');
           if (TFA_ENABLED == True && !empty($tfa_id)) {
             $tfa_link = "<a class='tfa_enabled' href='javascript:void(0);' data-tfaid='".$tfa_id."'>".icon('check-circle', color: 'green')."</a>";
