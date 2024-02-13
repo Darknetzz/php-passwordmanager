@@ -208,27 +208,43 @@ function isSecure() {
 /*                                 getTFA_accounts                       */
 /* ───────────────────────────────────────────────────────────────────── */
 function getTFA_accounts($access_token = TFA_APIKEY, $id = Null) {
-    if (defined("ENABLE_TFA") && ENABLE_TFA === True) {
-        $url = (empty($id) ? TFA_URL."/api/v1/accounts" : TFA_URL."/api/v1/accounts/$id");
-        $headers = array(
-            "Authorization: Bearer
-            $access_token"
-        );
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, True);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        return json_decode($result, True);
+    if (!defined("ENABLE_TFA") || ENABLE_TFA !== True) {
+        return False;
     }
-    return False;
+    $url = (empty($id) ? TFA_URL."/api/v1/accounts" : TFA_URL."/api/v1/accounts/$id");
+    $headers = array(
+        "Authorization: Bearer
+        $access_token"
+    );
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, True);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($result, True);
+}
+
+/* ───────────────────────────────────────────────────────────────────── */
+/*                            getTFA_dropdown                            */
+/* ───────────────────────────────────────────────────────────────────── */
+function getTFA_dropdown($access_token = TFA_APIKEY) {
+    if (!defined("ENABLE_TFA") || ENABLE_TFA !== True) {
+        return False;
+    }
+    $accounts = getTFA_accounts($access_token);
+    $dropdown = "<select name='2fa_id' class='form-select'>";
+    foreach ($accounts as $account) {
+        $dropdown .= "<option value='".$account['id']."'>".$account['name']."</option>";
+    }
+    $dropdown .= "</select>";
+    return $dropdown;
 }
 
 /* ───────────────────────────────────────────────────────────────────── */
 /*                               getTFA_otp                              */
 /* ───────────────────────────────────────────────────────────────────── */
 function getTFA_otp($access_token = TFA_APIKEY, $id = Null) {
-    if (empty($id)) {
+    if (!defined("ENABLE_TFA") || ENABLE_TFA !== True || empty($id)) {
         return False;
     }
     if (defined("ENABLE_TFA") && ENABLE_TFA === True) {

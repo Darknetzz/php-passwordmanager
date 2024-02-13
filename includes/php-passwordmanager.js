@@ -71,5 +71,29 @@ $(document).ready(function() {
       const genBtn = '<button type="button" class="btn btn-default genPass">🎲</button>';
       $(this).parent().prepend(genBtn);
     });
+
+    $(".tfa_switch").on("change", function(e) {
+      e.preventDefault();
+      var tfa      = $(this).prop("checked"); // Use `prop` instead of `checked` to get the checked state
+      var dropdown = $(this).parent().find(".tfa_dropdown");
+      if (tfa == false) { // Use `false` instead of `"0"` to compare with the boolean value
+        dropdown.hide();
+      } else {
+        dropdown.show();
+      }
+      console.log("TFA switch changed to "+tfa);
+    });
+
+    // Initial state of `tfa_switch` dropdown
+    $(".tfa_dropdown").hide();
+    $(".tfa_switch").each(function() {
+      var tfa      = $(this).prop("checked"); // Use `prop` instead of `checked` to get the checked state
+      var dropdown = $(this).parent().find(".tfa_dropdown");
+      if (tfa == false) {
+        dropdown.hide();
+      } else {
+        dropdown.show();
+      }
+    });
     
 });

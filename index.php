@@ -104,6 +104,8 @@ $pwInput = "Please enter master password:
 <input type='password' name='mpassword' class='form-control' autocomplete='off' spellcheck='false' autofocus>
 </form>";
 
+# TFA Dropdown
+$tfa_dropdown = getTFA_dropdown();
 
 # User is attempting to sign in, but password is incorrect
 if (isset($_POST['mpassword'])) {
@@ -255,16 +257,28 @@ $accounts = mysqli_query($sqlcon, $accounts);
         </div>
           <textarea class="form-control" name="desc" placeholder="Description"></textarea>
         </div>
+
         <div class="input-group mb-3">
+
           <div class="input-group-prepend">
             <span class="input-group-text">2FA</span>
           </div>
+
           <input type="hidden" name="2fa" value="0">
           <div class="form-check form-switch">
-            <input name="2fa" value="1" class="form-check-input" type="checkbox">
+            <input name="2fa" value="1" class="form-check-input tfa_switch" type="checkbox">
           </div>
+
         </div>
       </div>
+
+      <div class="input-group mb-3 tfa_dropdown" style="display:none;">
+            <div class="input-group-prepend">
+              <span class="input-group-text">2FA Account</span>
+            </div>
+            <?php echo $tfa_dropdown; ?>
+      </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <input type="submit" class="btn btn-primary" value="Create">
@@ -351,47 +365,62 @@ while ($account = $accounts->fetch_assoc()) {
           <form action="" method="POST">
           <input type="hidden" name="edit" value="1">
           <input type="hidden" name="id" value="'.$account['id'].'">
+          
           <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Name</span>
-          </div>
+            <div class="input-group-prepend">
+              <span class="input-group-text">Name</span>
+            </div>
             <input type="text" name="name" class="form-control" placeholder="Name" value="'.$account['name'].'">
           </div>
+
           <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Username</span>
-          </div>
+            <div class="input-group-prepend">
+              <span class="input-group-text">Username</span>
+            </div>
             <input type="text" name="username" class="form-control" placeholder="Username" value="'.$account['username'].'">
           </div>
+
           <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Password</span>
-          </div>
+            <div class="input-group-prepend">
+              <span class="input-group-text">Password</span>
+            </div>
             <input type="password" name="password" class="form-control password" placeholder="Password" value="'.$decryptedPass.'">
             <a href="javascript:void(0);" class="genPass btn btn-primary" data-output=".password">Generate</a>
           </div>
+
           <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">URL</span>
-          </div>
+            <div class="input-group-prepend">
+              <span class="input-group-text">URL</span>
+            </div>
             <input type="text" name="url" class="form-control" placeholder="URL" value="'.$account['url'].'">
           </div>
+          
           <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Description</span>
-          </div>
+            <div class="input-group-prepend">
+              <span class="input-group-text">Description</span>
+            </div>
             <textarea name="desc" class="form-control" placeholder="Description">'.$account['description'].'</textarea>
           </div>
+
+
           <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">2FA</span>
-          </div>
           <input type="hidden" name="2fa" value="0">
-          <div class="form-check form-switch">
-            <input name="2fa" value="1" class="form-check-input" type="checkbox" '.$checked.'>
+            <div class="input-group">
+              <span class="input-group-text">2FA</span>
+              <div class="form-check form-switch">
+                <input name="2fa" value="1" class="form-check-input tfa_switch" type="checkbox" '.$checked.'>
+              </div>
+            </div>
+          </div>
+
+        <div class="input-group mb-3 tfa_dropdown">
+          <div class="input-group">
+            <span class="input-group-text">2FA Account</span>
+            '.$tfa_dropdown.'
           </div>
         </div>
-      </div>
+
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <input type="submit" class="btn btn-primary" value="Save">
