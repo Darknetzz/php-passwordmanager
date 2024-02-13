@@ -290,7 +290,6 @@ $stmt->close();
           </div>
 
         </div>
-      </div>
 
       <div class="input-group mb-3 tfa_dropdown">
         <input type="hidden" name="2fa_id" value="0">
@@ -298,6 +297,7 @@ $stmt->close();
         <?php echo $tfa_dropdown; ?>
       </div>
       
+      </div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
