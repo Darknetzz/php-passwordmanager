@@ -262,7 +262,7 @@ $stmt->close();
         <div class="input-group-prepend">
           <span class="input-group-text" id="basic-addon1">Password</span>
         </div>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="">
+          <input type="password" class="form-control password" id="password" name="password" placeholder="Password" value="">
           <a href="javascript:void(0);" class="genPass btn btn-primary" data-output=".password">Generate</a>
         </div>
         <div class="input-group mb-3">
