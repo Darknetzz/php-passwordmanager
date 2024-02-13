@@ -184,7 +184,7 @@ if (isset($_POST['add'])) {
 }
 
 if (isset($_GET['reencrypt'])) {
-
+  echo alert("Coming soon");
 }
 
 if (isset($_GET['s'])) {

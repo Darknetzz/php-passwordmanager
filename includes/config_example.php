@@ -38,6 +38,16 @@ define("ENC_METHOD", "aes-256-cbc");
 // define("MASTER_IV", "63325357416f6e357474616f53787651");
 define("IGNORE_SSL_WARNING", False);
 
+# Enables the 2FA feature (requires you to have 2FAuth installed and configured)
+# https://github.com/Bubka/2FAuth
+define("ENABLE_TFA", False);
+
+# The API key for the 2FAuth plugin
+define("TFA_APIKEY", "CHANGEME");
+
+# The URL where 2FAuth is installed
+define("TFA_URL", "../2FAuth");
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /*                         MySQL Connection Parameters                        */
 /* ────────────────────────────────────────────────────────────────────────── */

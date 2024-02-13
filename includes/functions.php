@@ -203,3 +203,46 @@ function isSecure() {
     }
     return False;
 }
+
+/* ───────────────────────────────────────────────────────────────────── */
+/*                                 getTFA_accounts                       */
+/* ───────────────────────────────────────────────────────────────────── */
+function getTFA_accounts($access_token = TFA_APIKEY, $id = Null) {
+    if (defined("ENABLE_TFA") && ENABLE_TFA === True) {
+        $url = (empty($id) ? TFA_URL."/api/v1/accounts" : TFA_URL."/api/v1/accounts/$id");
+        $headers = array(
+            "Authorization: Bearer
+            $access_token"
+        );
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, True);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result, True);
+    }
+    return False;
+}
+
+/* ───────────────────────────────────────────────────────────────────── */
+/*                               getTFA_otp                              */
+/* ───────────────────────────────────────────────────────────────────── */
+function getTFA_otp($access_token = TFA_APIKEY, $id = Null) {
+    if (empty($id)) {
+        return False;
+    }
+    if (defined("ENABLE_TFA") && ENABLE_TFA === True) {
+        $url = TFA_URL."/api/v1/otp/$id";
+        $headers = array(
+            "Authorization: Bearer
+            $access_token"
+        );
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, True);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result, True);
+    }
+    return False;
+}
