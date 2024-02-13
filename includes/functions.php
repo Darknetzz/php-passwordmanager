@@ -240,7 +240,10 @@ function getTFA_dropdown($access_token = TFA_APIKEY) {
         return False;
     }
     $accounts = getTFA_accounts($access_token);
-    $dropdown = "<select name='2fa_id' class='form-select'>";
+    $dropdown = "
+    <input type='hidden' name='2fa_id' value=''>
+    <select name='2fa_id' class='form-select'>
+    ";
     if (empty($accounts)) {
         $dropdown .= "<option value='' disabled selected>No accounts found</option>";
     }
