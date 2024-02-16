@@ -159,18 +159,16 @@ if (isset($_POST['edit'])) {
   $tfa = mysqli_real_escape_string($sqlcon, $_POST['2fa']);
   $tfa_id = mysqli_real_escape_string($sqlcon, $_POST['2fa_id']);
   # check if entry exists
-  $exists = "SELECT * FROM accounts WHERE `id` = '$id'";
-  $exists = mysqli_query($sqlcon, $exists);
-  if ($exists->num_rows > 0) {
+  $exists = $sqlcon->prepare("SELECT * FROM accounts WHERE `id` = ?");
+  $exists->bind_param("i", $id);
+  $exists->execute();
+  $exists_result = $exists->get_result();
+  if ($exists_result->num_rows > 0) {
   $stmt = $sqlcon->prepare("UPDATE accounts SET `name` = ?, `username` = ?, `password` = ?, `salt` = ?, `iv` = ?, `url` = ?, `description` = ?, `2fa` = ?, `2fa_id` = ? WHERE id = ?");
-  $stmt->bind_param("ssssssssis", $name, $username, $password, $salt, $iv, $url, $desc, $tfa, $id, $tfa_id);
-  $edit = $stmt->execute();
+  $stmt->bind_param("ssssssssis", $name, $username, $password, $salt, $iv, $url, $desc, $tfa, $tfa_id, $id);
+  $stmt->execute();
   $stmt->close();
-  if ($edit) {
-    echo "<div class='alert alert-success'>Entry <b>$name</b> updated!</div>";
-  } else {
-    echo "<div class='alert alert-danger'>Could not update entry: $sqlcon->error</div>";
-  }
+  echo "<div class='alert alert-success'>Entry <b>$name</b> updated!</div>";
 } else {
   echo "<div class='alert alert-danger'>This entry (ID #$id) does not exist.</div>";
 }
